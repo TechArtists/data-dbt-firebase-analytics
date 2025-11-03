@@ -12,7 +12,13 @@
 ) }}
 
 -- https://firebase.google.com/docs/crashlytics/bigquery-export#without_stack_traces
-SELECT    event_timestamp as event_ts
+
+{% set projects = var('OVERBASE:SOURCES', []) %}
+
+{% for p in projects %}
+{% if not loop.first %}UNION ALL{% endif %}
+SELECT    
+    '{{ p.project_id }}' as project_id,
     , DATE(event_timestamp) as event_date
     , received_timestamp as received_ts
     , installation_uuid as crashlytics_user_pseudo_id
@@ -77,8 +83,8 @@ SELECT    event_timestamp as event_ts
             ], "unity_metadata." )| join(", ") }}
           ) AS unity_metadata
         , COUNT(1) OVER (PARTITION BY installation_uuid, event_id, variant_id) as duplicates_cnt
-FROM {{ source("firebase_crashlytics", "events") }}  as events
-WHERE True 
-AND {{ overbase_firebase.crashlyticsTSFilterFor("event_timestamp") }}
-QUALIFY ROW_NUMBER() OVER (PARTITION BY installation_uuid, event_id, variant_id ORDER BY received_ts) = 1
 
+FROM {{ source('firebase_crashlytics__' ~ p.project_id, 'events') }}
+WHERE  {{ overbase_firebase.crashlyticsTSFilterFor("event_timestamp") }}
+QUALIFY ROW_NUMBER() OVER (PARTITION BY installation_uuid, event_id, variant_id ORDER BY received_ts) = 1
+{% endfor %}

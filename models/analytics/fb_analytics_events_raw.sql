@@ -57,7 +57,6 @@ SELECT    TIMESTAMP_MICROS(event_timestamp) as event_ts
         ) AS users_ltv
         , STRUCT<firebase_app_id STRING, stream_id STRING, advertising_id STRING>(
             LOWER(app_info.firebase_app_id), LOWER(stream_id), LOWER({{ null_if_length_zero('device.advertising_id') }})
-        ) as other_ids
         , {{ overbase_firebase.generate_date_timezone_struct('TIMESTAMP_MICROS(event_timestamp)') }} as event_dates
         , {{ overbase_firebase.generate_date_timezone_struct('TIMESTAMP_MICROS(user_first_touch_timestamp)') }} as install_dates
         , COUNT(1) OVER (PARTITION BY user_pseudo_id, event_bundle_sequence_id, event_name, event_timestamp, event_previous_timestamp) as duplicates_cnt
@@ -71,6 +70,4 @@ LEFT JOIN {{ref('ob_iso_country')}} as language_region_codes -- some language ha
 
 WHERE True 
 AND {{ overbase_firebase.analyticsTableSuffixFilter() }} -- already extended by 1 day compared to event_timestamp filter
-AND {{ overbase_firebase.analyticsDateFilterFor('DATE(TIMESTAMP_MICROS(event_timestamp))') }}
 
-QUALIFY ROW_NUMBER() OVER (PARTITION BY user_pseudo_id, event_bundle_sequence_id, event_name, event_timestamp, event_previous_timestamp) = 1
