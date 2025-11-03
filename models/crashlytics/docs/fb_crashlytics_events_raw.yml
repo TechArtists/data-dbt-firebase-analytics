@@ -1,0 +1,124 @@
+models:
+  - name: fb_crashlytics_events_raw
+    description: "Raw Crashltyics events that have been de-duplicated & with dimensions moved around "
+    columns:
+      - name: event_ts
+        description: ""
+      - name: received_ts
+        description: ""
+      - name: crashlytics_user_pseudo_id
+        description: "`installation_uuid` from Firebase Crashlytics"
+      - name: firebase_analytics_user_pseudo_id
+        description: "`fb_user_pseudo_id` custom key set in Firebase Crashlytics (by the Overbase SDK)"
+      - name: user_id
+        description: "`app_user_id` custom key set in Firebase Crashlytics (by the Overbase SDK)"
+      - name: app_id
+        description: "iOS: bundle_identifier, Android: package_name"
+      - name: reverse_app_id
+        description: "iOS: bundle_identifier, Android: package_name in reversed format. So 'com.overbase.myapp' becomes 'myapp.overbase.com'"
+      - name: event_id
+        description: ""
+      - name: platform
+        description: "IOS/ANDROID"
+      - name: issue
+        description: "Record of the issue"
+      - name: issue.id
+        description: ""
+      - name: issue.title
+        description: ""
+      - name: issue.subtitle
+        description: ""
+      - name: issue.variant_id
+        description: ""
+      - name: error_type
+        description: "FATAL/NON_FATAL/ANR"
+      - name: process_state
+        description: "BACKGROUND/FOREGROUND/UNKNOWN_PROCESS_STATE"
+      - name: orientation
+        description: ""
+      - name: orientation.app
+        description: "PORTRAIT/LANDSCAPE/UNKNOWN_ORIENTATION. `app_orientation` from Firebase Crashlytics"
+      - name: orientation.device
+        description: "FACE_UP/PORTRAIT/LANDSCAPE/FACE_DOWN/UNKNOWN_ORIENTATION. `device_orientation` from Firebase Crashlytics"
+      - name: app_version
+        description: "Record of the app version"
+      - name: app_version.firebase_value
+        description: "`application.display_version` from Firebase Crashlytics"
+      - name: app_version.build_no
+        description: "`application.build_version` from Firebase Crashlytics"
+      - name: app_version.major
+        description: "The major version, taken as split(\".\")[0]"
+      - name: app_version.minor
+        description: "The minor version, taken as split(\".\")[1]"
+      - name: app_version.bugfix
+        description: "The bugfix version, taken as split(\".\")[2]"
+      - name: app_version.major_minor
+        description: "major.minor float"
+      - name: app_version.major_minor_bugfix
+        description: "This is only populated if `firebase_value` followed SemVer, so split(\".\").count <= 3"
+      - name: app_version.normalized
+        description: "Normalized if `firebase_value` followed SemVer, where each mini-version ca be up to 6 digits (999,999). If the firebase_value is just the major version, it will pad with the appropriate 0's for minor & bugfix. Useful for comparing which is the newest version."
+      - name: app_version.join_value
+        description: "COALESCE(normalized, firebase_value)"
+      - name: platform_version
+        description: "Record of the platform version"
+      - name: platform_version.firebase_value
+        description: "`operating_system.display_version` from Firebase Crashlytics."
+      - name: platform_version.major
+        description: "The major version, taken as split(\".\")[0]"
+      - name: platform_version.minor
+        description: "The minor version, taken as split(\".\")[1]"
+      - name: platform_version.bugfix
+        description: "The bugfix version, taken as split(\".\")[2]"
+      - name: platform_version.major_minor
+        description: "major.minor float"
+      - name: platform_version.major_minor_bugfix
+        description: "This is only populated if `firebase_value` followed SemVer, so split(\".\").count <= 3"
+      - name: platform_version.normalized
+        description: "Normalized if `firebase_value` followed SemVer, where each mini-version ca be up to 6 digits (999,999). If the firebase_value is just the major version, it will pad with the appropriate 0's for minor & bugfix. Useful for comparing which is the newest version."
+      - name: platform_version.join_value
+        description: "COALESCE(normalized, firebase_value)"
+      - name: jailbroken_state
+        description: "MODIFIED/UNMODIFIED. `application.modification_state` from Firebase Crashlytics"
+      - name: device_hardware
+        description: "Record of the device hardware properties"
+      - name: device_hardware.type
+        description: "`LOWER(operating_system.device_type)` from Firebase Crashlytics"
+      - name: device_hardware.manufacturer
+        description: "`LOWER(device.manufacturer)` from Firebase Crashlytics"
+      - name: device_hardware.os_model
+        description: "`LOWER(device.model)` from Firebase Crashlytics"
+      - name: device_hardware.architecture
+        description: "`device.architecture` from Firebase Crashlytics."
+      - name: custom_keys
+        description: "Record with all the custom keys that (some) should be extracted as explicit dimensions so that they can be rolled up"
+      - name: custom_keys_raw
+        description: "The array of raw custom keys, as taken from Firebase Crashlytics"
+      - name: memory
+        description: "The device's memory status"
+      - name: storage
+        description: "The device's persistent storage"
+      - name: user
+        description: ""
+      - name: user.name
+        description: "`user.name` from Firebase Crashlytics."
+      - name: user.email
+        description: "`user.email` from Firebase Crashlytics."
+      - name: crashlytics_sdk_version_string
+        description: ""
+      - name: logs
+        description: "Timestamped log messages generated by the Crashlytics logger, if enabled"
+      - name: breadcrumbs
+        description: "Timestamped Firebase Analytics breadcrumbs, if enabled"
+      - name: blame_frame
+        description: "The frame identified as the root cause of the crash or error"
+      - name: android_exceptions
+        description: "Android only: Exceptions that occurred during this event. Nested exceptions are presented in reverse chronological order (read: the last record is the first exception thrown)"
+      - name: ios_non_fatal
+        description: "Apple apps only: non-fatal errors"
+      - name: threads
+        description: "Threads present at the time of the event"
+      - name: unity_metadata
+        description: ""
+      - name: duplicates_cnt
+        description: "How many duplicates of this exact row were found in the raw Firebase Crashlytics table. It's considered a duplicate, if it has the same `crashlytics_user_pseudo_id`, `event_id`, `variant_id`"

@@ -1,0 +1,15 @@
+version: 2
+
+sources:
+  - name: firebase_analytics
+    database: "{{ var( 'OVERBASE:FIREBASE_PROJECT_ID', 'overbase') }}"
+    schema: "{{ var( 'OVERBASE:FIREBASE_ANALYTICS_DATASET_ID', 'firebase_analytics_raw_test')}}"
+    tables:
+      - name: events
+        identifier: "{{ var( 'OVERBASE:FIREBASE_ANALYTICS_EVENTS_TABLE_NAME', 'events_*')}}"
+  - name: firebase_crashlytics
+    database: "{{ var( 'OVERBASE:FIREBASE_PROJECT_ID', 'overbase') }}"
+    schema: "{{ var( 'OVERBASE:FIREBASE_CRASHLYTICS_DATASET_ID', 'firebase_crashlytics_raw_test')}}"
+    tables:
+      - name: events
+        identifier: "{{ var( 'OVERBASE:FIREBASE_CRASHLYTICS_EVENTS_TABLE_NAME', 'com_labpixies_flood_floodit_*')}}"

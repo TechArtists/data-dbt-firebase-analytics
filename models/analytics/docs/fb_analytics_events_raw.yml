@@ -1,0 +1,128 @@
+version: 2
+
+models:
+  - name: fb_analytics_events_raw
+    description: "Raw Firebase events that have been de-duplicated & with dimensions moved around "
+    columns:
+    - name: event_ts
+      description: "Event timestamp"
+    - name: install_ts
+      description: "Install timestamp"
+    - name: install_age
+      description: "Age 0 = within the first 24h after the install"
+    - name: user_pseudo_id
+      description: "Firebase's user pseudo id"
+    - name: user_id
+      description: "The app set user_id"
+    - name: app_id
+      description: "iOS: bundle_identifier, Android: package_name"
+    - name: reverse_app_id
+      description: "iOS: bundle_identifier, Android: package_name in reversed format. So 'com.overbase.myapp' becomes 'myapp.overbase.com'"
+    - name: event_name
+      description: ""
+    - name: platform
+      description: "IOS or ANDROID"
+    - name: appstore
+      description: "iTunes/manual/manual_install/com.android.vending/etc."
+    - name: app_version
+      description: "Record of the app version"
+    - name: app_version.firebase_value
+      description: "`app_info.version` from Firebase Analytics"
+    - name: app_version.major
+      description: "The major version, taken as split(\".\")[0]"
+    - name: app_version.minor
+      description: "The minor version, taken as split(\".\")[1]"
+    - name: app_version.bugfix
+      description: "The bugfix version, taken as split(\".\")[2]"
+    - name: app_version.major_minor
+      description: "major.minor float"
+    - name: app_version.major_minor_bugfix
+      description: "This is only populated if `firebase_value` followed SemVer, so split(\".\").count <= 3"
+    - name: app_version.normalized
+      description: "Normalized if `firebase_value` followed SemVer, where each mini-version ca be up to 6 digits (999,999). If the firebase_value is just the major version, it will pad with the appropriate 0's for minor & bugfix. Useful for comparing which is the newest version."
+    - name: app_version.join_value
+      description: "COALESCE(normalized, firebase_value)"
+    - name: platform_version
+      description: "Record of the platform version"
+    - name: platform_version.firebase_value
+      description: "`device.operating_system_version` from Firebase Analytics. This is usually prefixed with the OS (so it's 'iOS 17.1', not just '17.1'). The extractions below remove the OS prefix first."
+    - name: platform_version.major
+      description: "The major version, taken as split(\".\")[0]"
+    - name: platform_version.minor
+      description: "The minor version, taken as split(\".\")[1]"
+    - name: platform_version.bugfix
+      description: "The bugfix version, taken as split(\".\")[2]"
+    - name: platform_version.major_minor
+      description: "major.minor float"
+    - name: platform_version.major_minor_bugfix
+      description: "This is only populated if `firebase_value` followed SemVer, so split(\".\").count <= 3"
+    - name: platform_version.normalized
+      description: "Normalized if `firebase_value` followed SemVer, where each mini-version ca be up to 6 digits (999,999). If the firebase_value is just the major version, it will pad with the appropriate 0's for minor & bugfix. Useful for comparing which is the newest version."
+    - name: platform_version.join_value
+      description: "COALESCE(normalized, firebase_value)"
+    - name: user_properties
+      description: "Record with all the user properties that (some) should be extracted as explicit dimensions so that they can be rolled up"
+    - name: event_parameters
+      description: "Record with all the event parameters that (some) should be extracted as explicit dimensions so that they can be rolled up"
+    - name: user_properties_raw
+      description: "The array of raw user properties, as taken from Firebase Analytics"
+    - name: event_parameters_raw
+      description: "The array of raw event parameters, as taken from Firebase Analytics"
+    - name: geo
+      description: "Geo record, that also has the ISO country name & alpha 2 code"
+    - name: geo.city
+      description: "`geo.city` from Firebase Analytics"
+    - name: geo.firebase_value
+      description: "`geo.country` from Firebase Analytics. This is not ISO-3166 compliant."
+    - name: geo.iso_country_name
+      description: "ISO-3166 country name"
+    - name: geo.iso_country_alpha_2
+      description: "ISO-3166 country alpha 2"
+    - name: geo.continent
+      description: "`geo.continent` from Firebase Analytics"
+    - name: geo.subcontinent
+      description: "`geo.sub_continent` from Firebase Analytics"
+    - name: geo.region
+      description: "`geo.region` from Firebase Analytics"
+    - name: geo.metro
+      description: "`geo.metro` from Firebase Analytics"
+    - name: device_hardware
+      description: "Record of the device hardware properties"
+    - name: device_hardware.type
+      description: "`LOWER(device.category)` from Firebase Analytics"
+    - name: device_hardware.manufacturer
+      description: "`LOWER(device.mobile_brand_name)` from Firebase Analytics"
+    - name: device_hardware.model_name
+      description: "`device.mobile_model_name` from Firebase Analytics"
+    - name: device_hardware.marketing_name
+      description: "`device.mobile_marketing_name` from Firebase Analytics. Always `NULL` for iOS, but sometimes populated for Android."
+    - name: device_hardware.os_model
+      description: "`LOWER(device.mobile_os_hardware_model)` from Firebase Analytics"
+    - name: device_language
+      description: "`device.language` from Firebase Analytics"
+    - name: device_language.firebase_value
+      description: "ISO-639-1 & ISO-3166 compliant record for the device language (e.g. en_US)"
+    - name: device_language.iso_language_alpha_2
+      description: "ISO-639-1 language code"
+    - name: device_language.iso_country_alpha_2
+      description: "ISO 3166 country alpha 2"
+    - name: device_time_zone_offset
+      description: "Device time zone offset string that can easily be appended to create a timestamp (e.g. '+02:00'). Originally taken from Firebase Analytic's `device.time_zone_offset_seconds`."
+    - name: traffic_source
+      description: ""
+    - name: users_ltv
+      description: ""
+    - name: other_ids
+      description: "Record of other IDs that aren't as important for day-to-day"
+    - name: other_ids.firebase_app_id
+      description: "`LOWER(app_info.firebase_app_id)` from Firebase Analytics"
+    - name: other_ids.stream_id
+      description: "`LOWER(app_info.stream_id)` from Firebase Analytics"
+    - name: other_ids.advertising_id
+      description: "`LOWER(app_info.advertising_id)` from Firebase Analytics"
+    - name: event_dates
+      description: "Record of all the event dates for +12/-12 time zones from UTC"
+    - name: install_dates
+      description: "Record of all the install dates for +12/-12 time zones from UTC"
+    - name: duplicates_cnt
+      description: "How many duplicates of this exact row were found in the raw Firebase Analytics table. It's considered a duplicate, if it has the same `user_pseudo_id`, `event_bundle_sequence_id`, `event_name`, `event_timestamp`, `event_previous_timestamp`"

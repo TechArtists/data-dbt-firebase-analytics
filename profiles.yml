@@ -1,0 +1,26 @@
+config:
+  send_anonymous_usage_stats: false
+  use_colors: true
+  # partial_parse: <true | false>
+  # printer_width: <integer>
+  write_json: false
+  warn_error: true
+  # warn_error_options: <include: all | include: [<error-name>] | include: all, exclude: [<error-name>]>
+  log_format: text
+  debug: false
+  version_check: true
+  fail_fast: true
+  use_experimental_parser: true
+  static_parser: true
+
+default:
+  target: dev # this is the default target
+  outputs:
+    dev:
+      type: bigquery
+      threads: 4
+      method: service-account
+      project: overbase
+      schema: "{{ env_var('DBT_USER_SCHEMA') }}"
+      keyfile: "{{ env_var('DBT_GCP_KEYFILE') }}" 
+
