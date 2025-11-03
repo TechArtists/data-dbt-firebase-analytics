@@ -33,15 +33,24 @@ seeds:
 vars: 
   overbase_firebase:
     "OVERBASE:DONT_CARE": "MAKE_YAML_WORK" # optional
+    # "OVERBASE:SOURCES":
+    #   - {project_id: watermark-maker,
+    #     analytics_dataset_id: analytics_150733022,
+    #     events_table: events_*,
+    #     crashlytics_dataset_id: firebase_crashlytics,
+    #     crashlytics_table: com_kobe_watermarkmaker_*}
+    #   # add more projects here
+    #   - {project_id: logo-maker-35628,
+    #     analytics_dataset_id: analytics_153578578,
+    #     events_table: events_*,
+    #     crashlytics_dataset_id: firebase_crashlytics,
+    #     crashlytics_table: com_dave_logomaker_*}
+    
     # don't define variables here, because if they aren't overwritten in the client yml, then they will resolve to "None". 
     # Instead, use them in the package where you need them with them with the appropriate default value
     # Furthermore, whatever we use in sources.yml, we can't define in this package's dbt_project.yml, or else they won't be able to be overwritten by the client
     # Any mandatory variables you want to be enforced should go into overbase_mandatory_vars.sql
     # The comments liste here is just for our sanity & easier c/p in client configs
-    # "OVERBASE:FIREBASE_PROJECT_ID": "overbase" # mandatory, but used in sources.yml
-    # "OVERBASE:FIREBASE_ANALYTICS_DATASET_ID": "firebase_analytics_raw_test" # mandatory, but used in sources.yml
-    # "OVERBASE:FIREBASE_ANALYTICS_EVENTS_TABLE_NAME": "events_*" # optional, but used in sources.yml
-    # "OVERBASE:FIREBASE_ANALYTICS_EVENTS_INTRADAY_TABLE_NAME": "events_intraday_*" # optional, but used in sources.yml
     # "OVERBASE:FIREBASE_ANALYTICS_CUSTOM_INSTALL_EVENT": "" # optional e.g. attributed_first_open
     # "OVERBASE:CUSTOM_PLATFORM_PREPROCESSOR": "IF(app_info.version LIKE '%nexus', 'nexus', platform)"
     # "OVERBASE:FIREBASE_ANALYTICS_DEFAULT_INCREMENTAL_DAYS":  # optional
