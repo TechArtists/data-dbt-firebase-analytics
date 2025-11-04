@@ -60,7 +60,20 @@ SELECT    TIMESTAMP_MICROS(event_timestamp) as event_ts
         , {{ overbase_firebase.generate_date_timezone_struct('TIMESTAMP_MICROS(event_timestamp)') }} as event_dates
         , {{ overbase_firebase.generate_date_timezone_struct('TIMESTAMP_MICROS(user_first_touch_timestamp)') }} as install_dates
         , COUNT(1) OVER (PARTITION BY user_pseudo_id, event_bundle_sequence_id, event_name, event_timestamp, event_previous_timestamp) as duplicates_cnt
-FROM {{ source("firebase_analytics", "events") }}  as events
+-- FROM {{ source("firebase_analytics", "events") }}  as events
+FROM 
+(
+{% set projects = var('OVERBASE:SOURCES', []) %}
+
+{% for p in projects %}
+  {% if not loop.first %}UNION ALL{% endif %}
+  select
+    '{{ p.project_id }}' as project_id,
+    *
+  from {{ source('firebase_analytics__' ~ p.project_id, 'events') }}
+  WHERE {{ overbase_firebase.analyticsTableSuffixFilter() }}
+{% endfor %}
+) as events
 LEFT JOIN {{ref('ob_iso_country')}} as country_codes
     ON LOWER(events.geo.country) = LOWER(country_codes.firebase_name)
 LEFT JOIN {{ref("ob_iso_language")}} as language_codes
@@ -68,6 +81,5 @@ LEFT JOIN {{ref("ob_iso_language")}} as language_codes
 LEFT JOIN {{ref('ob_iso_country')}} as language_region_codes -- some language have 3 parts (e.g. zh-hans-us), so just get the last one
     ON LOWER(ARRAY_REVERSE(SPLIT(events.device.language,'-'))[SAFE_OFFSET(0)]) = language_region_codes.alpha_2
 
-WHERE True 
-AND {{ overbase_firebase.analyticsTableSuffixFilter() }} -- already extended by 1 day compared to event_timestamp filter
 
+QUALIFY ROW_NUMBER() OVER (PARTITION BY user_pseudo_id, event_bundle_sequence_id, event_name, event_timestamp, event_previous_timestamp) = 1
