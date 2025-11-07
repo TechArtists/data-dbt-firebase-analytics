@@ -12,7 +12,10 @@
 ) }}
 
 -- https://support.google.com/firebase/answer/7029846
-SELECT    TIMESTAMP_MICROS(event_timestamp) as event_ts
+SELECT    
+          project_id,
+          dataset_id,
+          TIMESTAMP_MICROS(event_timestamp) as event_ts
         , DATE(TIMESTAMP_MICROS(event_timestamp)) as event_date
         , TIMESTAMP_MICROS(user_first_touch_timestamp) as install_ts
         , {{ overbase_firebase.calculate_age_between_timestamps("TIMESTAMP_MICROS(event_timestamp)", "TIMESTAMP_MICROS(user_first_touch_timestamp)") }} as install_age
@@ -57,22 +60,62 @@ SELECT    TIMESTAMP_MICROS(event_timestamp) as event_ts
         ) AS users_ltv
         , STRUCT<firebase_app_id STRING, stream_id STRING, advertising_id STRING>(
             LOWER(app_info.firebase_app_id), LOWER(stream_id), LOWER({{ null_if_length_zero('device.advertising_id') }})
+        ) as other_ids
         , {{ overbase_firebase.generate_date_timezone_struct('TIMESTAMP_MICROS(event_timestamp)') }} as event_dates
         , {{ overbase_firebase.generate_date_timezone_struct('TIMESTAMP_MICROS(user_first_touch_timestamp)') }} as install_dates
         , COUNT(1) OVER (PARTITION BY user_pseudo_id, event_bundle_sequence_id, event_name, event_timestamp, event_previous_timestamp) as duplicates_cnt
--- FROM {{ source("firebase_analytics", "events") }}  as events
 FROM 
 (
-{% set projects = var('OVERBASE:SOURCES', []) %}
+{%- set projects = var('OVERBASE:SOURCES', []) -%}
+{%- set ready = var('OVERBASE:SOURCES_READY', false) -%}
 
-{% for p in projects %}
-  {% if not loop.first %}UNION ALL{% endif %}
-  select
-    '{{ p.project_id }}' as project_id,
-    *
-  from {{ source('firebase_analytics__' ~ p.project_id, 'events') }}
-  WHERE {{ overbase_firebase.analyticsTableSuffixFilter() }}
-{% endfor %}
+ {%- set first = (projects[0] if projects and (projects[0] is mapping) else {}) -%}
+  {%- set pid0 = first.get('project_id', 'fallback_project') -%}
+  {%- set ads_raw0 = first.get('analytics_dataset_ids') if first.get('analytics_dataset_ids') is not none else first.get('analytics_dataset_id') -%}
+  {%- if ads_raw0 is string -%}
+    {%- set ds0 = ads_raw0 -%}
+  {%- elif ads_raw0 is iterable and (ads_raw0 | length) > 0 -%}
+    {%- set ds0 = ads_raw0[0] -%}
+  {%- else -%}
+    {%- set ds0 = 'fallback_dataset' -%}
+  {%- endif -%}
+
+ {%- if not ready -%}
+    -- FALLBACK: use the single parse-safe source until generated sources are ready
+    SELECT
+      '{{ pid0 }}' as project_id,
+      '{{ ds0 }}'  as dataset_id,
+      *
+    FROM {{ source('firebase_analytics__fallback', 'events') }}
+    WHERE {{ overbase_firebase.analyticsTableSuffixFilter() }}
+ {%- else -%}
+{%- set ns = namespace(first=true) -%}
+{%- for p in projects -%}
+  {%- set pid = p.get('project_id') -%}
+  {%- if not pid %}{% continue %}{% endif -%}
+  {%- set ads_raw = p.get('analytics_dataset_ids') if p.get('analytics_dataset_ids') is not none else p.get('analytics_dataset_id') -%}
+  {%- if ads_raw is string -%}
+    {%- set ads_list = [ads_raw] -%}
+  {%- elif ads_raw is iterable -%}
+    {%- set ads_list = ads_raw -%}
+  {%- else -%}
+    {%- set ads_list = [] -%}
+  {%- endif -%}
+
+  {%- for ds in ads_list -%}
+    {%- if pid and ds -%}
+      {% if not ns.first %}UNION ALL{% endif %}
+      {% set ns.first = false %}
+      SELECT
+        '{{ pid }}' as project_id,
+        '{{ ds }}' as dataset_id,
+        *
+      FROM {{ source('firebase_analytics__' ~ pid ~ '__' ~ ds, 'events') }}
+      WHERE {{ overbase_firebase.analyticsTableSuffixFilter() }}
+    {%- endif -%}
+  {%- endfor -%}
+{%- endfor -%}
+{%- endif -%}
 ) as events
 LEFT JOIN {{ref('ob_iso_country')}} as country_codes
     ON LOWER(events.geo.country) = LOWER(country_codes.firebase_name)

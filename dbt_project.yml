@@ -33,6 +33,7 @@ seeds:
 vars: 
   overbase_firebase:
     "OVERBASE:DONT_CARE": "MAKE_YAML_WORK" # optional
+    "OVERBASE:SOURCES_READY" : false
     # "OVERBASE:SOURCES":
     #   - {project_id: watermark-maker,
     #     analytics_dataset_id: analytics_150733022,

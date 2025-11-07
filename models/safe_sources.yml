@@ -1,0 +1,18 @@
+version: 2
+
+sources:
+  # Firebase Analytics (safe default)
+  - name: "firebase_analytics__fallback"
+    database: "{{ var('OVERBASE:SOURCES','ta')[0]['project_id'] }}"
+    schema: "{{ var('OVERBASE:SOURCES','firebase_analytics_raw_test')[0]['analytics_dataset_id'] }}"
+    tables:
+      - name: events
+        identifier: "{{ var('OVERBASE:SOURCES','events_*')[0]['events_table'] }}"
+
+  # Firebase Crashlytics (safe default)
+  - name: firebase_crashlytics__fallback
+    database: "{{ var('OVERBASE:SOURCES','ta')[0]['project_id'] }}"
+    schema: "{{ var('OVERBASE:SOURCES', 'firebase_crashlytics__fallback')[0]['crashlytics_dataset_id'] }}"
+    tables:
+      - name: events
+        identifier: "{{ var('OVERBASE:SOURCES','com_app_*')[0]['crashlytics_table'] }}"
