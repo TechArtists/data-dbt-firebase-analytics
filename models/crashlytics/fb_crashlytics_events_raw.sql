@@ -27,6 +27,7 @@
     SELECT
     '{{ pid0 }}' AS project_id
     ,'{{ ds0 }}'  AS dataset_id
+    , event_timestamp as event_ts
     , DATE(event_timestamp) as event_date
     , received_timestamp as received_ts
     , installation_uuid as crashlytics_user_pseudo_id
