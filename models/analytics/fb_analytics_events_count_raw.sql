@@ -17,7 +17,7 @@ SELECT
     ,user_id
     ,sum(if(event_name = 'user_engagement',1,0)) as user_engagement
 FROM  {{ ref("fb_analytics_events_raw") }}
-WHERE {{ overbase_firebase.analyticsDateFilterFor('event_date') }}
+WHERE {{ ta_firebase.analyticsDateFilterFor('event_date') }}
 AND event_name in ('user_engagement')
 GROUP by 1,2,3
 

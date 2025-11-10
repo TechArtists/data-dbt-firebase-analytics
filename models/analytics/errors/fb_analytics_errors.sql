@@ -13,5 +13,5 @@
 SELECT *
 FROM {{ ref("fb_analytics_events") }}
 WHERE True 
-AND  {{ overbase_firebase.analyticsDateFilterFor('event_date') }}
-AND (event_name LIKE 'error_%' OR event_name LIKE 'ob_error_%')
+AND  {{ ta_firebase.analyticsDateFilterFor('event_date') }}
+AND (event_name LIKE 'error_%' OR event_name LIKE 'ta_error_%')

@@ -1,7 +1,7 @@
 version: 2
 
 seeds:
-  - name: ob_iso_country
+  - name: ta_iso_country
     description: List of ISO-3166 country codes, originally taken from https://www.iban.com/country-codes , but then augmented with the specific Firebase country name  
     docs:
       show: true
@@ -16,7 +16,7 @@ seeds:
         description: The ISO-3166 3 letter country code, lowercased
       - name: numeric
         description: The ISO-3166 numeric country code, lowercased
-  - name: ob_iso_language
+  - name: ta_iso_language
     description: List of ISO-639-1 languages, originally taken from ?? TODO  
     docs:
       show: true

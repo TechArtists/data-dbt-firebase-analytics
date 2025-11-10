@@ -1,4 +1,4 @@
-{{ overbase_firebase.verify_all_overbase_mandatory_variables() }}
+{{ ta_firebase.verify_all_ta_mandatory_variables() }}
 {{ config(
     materialized='incremental',
     partition_by={
@@ -18,25 +18,25 @@ SELECT
           TIMESTAMP_MICROS(event_timestamp) as event_ts
         , DATE(TIMESTAMP_MICROS(event_timestamp)) as event_date
         , TIMESTAMP_MICROS(user_first_touch_timestamp) as install_ts
-        , {{ overbase_firebase.calculate_age_between_timestamps("TIMESTAMP_MICROS(event_timestamp)", "TIMESTAMP_MICROS(user_first_touch_timestamp)") }} as install_age
+        , {{ ta_firebase.calculate_age_between_timestamps("TIMESTAMP_MICROS(event_timestamp)", "TIMESTAMP_MICROS(user_first_touch_timestamp)") }} as install_age
         , LOWER(user_pseudo_id) as user_pseudo_id
         , LOWER(user_id) as user_id
         , app_info.id as app_id
         , ARRAY_TO_STRING(ARRAY_REVERSE(SPLIT(app_info.id, '.')), '.') as reverse_app_id
         , event_name
-        , {{ var( 'OVERBASE:CUSTOM_PLATFORM_PREPROCESSOR', 'platform') }} as platform
+        , {{ var( 'TA:CUSTOM_PLATFORM_PREPROCESSOR', 'platform') }} as platform
         , app_info.install_source as appstore
         , STRUCT<firebase_value STRING, major INT64, minor INT64, bugfix INT64, major_minor FLOAT64, major_minor_bugfix STRING, normalized INT64, join_value STRING>(
             {%- set v = "app_info.version" -%}
-            {{ v }}, {{ overbase_firebase.get_version(v, "major") }}, {{ overbase_firebase.get_version(v, "minor") }}, {{ overbase_firebase.get_version(v, "bugfix") }}, {{ overbase_firebase.get_version(v, "major.minor") }}, {{ overbase_firebase.get_version(v, "major.minor.bugfix") }}, {{ overbase_firebase.get_version(v, "normalized") }}, COALESCE(CAST({{ overbase_firebase.get_version(v, "normalized") }} AS STRING), {{ v }} )
+            {{ v }}, {{ ta_firebase.get_version(v, "major") }}, {{ ta_firebase.get_version(v, "minor") }}, {{ ta_firebase.get_version(v, "bugfix") }}, {{ ta_firebase.get_version(v, "major.minor") }}, {{ ta_firebase.get_version(v, "major.minor.bugfix") }}, {{ ta_firebase.get_version(v, "normalized") }}, COALESCE(CAST({{ ta_firebase.get_version(v, "normalized") }} AS STRING), {{ v }} )
         ) AS app_version
         # join_value: COALESCE(normalized, "almost" firebase_value). FB Analytics's firebase_value is 'iOS 16.7.1', but Crashlytics' is just '16.7.1', so use just '16.7.1'
         , STRUCT<firebase_value STRING, major INT64, minor INT64, bugfix INT64, major_minor FLOAT64, major_minor_bugfix STRING, normalized INT64, join_value STRING>(
             {%- set v = "REPLACE(device.operating_system_version, device.operating_system ||' ','')" -%}
-            device.operating_system_version, {{ overbase_firebase.get_version(v, "major") }}, {{ overbase_firebase.get_version(v, "minor") }}, {{ overbase_firebase.get_version(v, "bugfix") }}, {{ overbase_firebase.get_version(v, "major.minor") }}, {{ overbase_firebase.get_version(v, "major.minor.bugfix") }}, {{ overbase_firebase.get_version(v, "normalized") }}, COALESCE(CAST( {{ overbase_firebase.get_version(v, "normalized") }} AS STRING), {{ v }} )
+            device.operating_system_version, {{ ta_firebase.get_version(v, "major") }}, {{ ta_firebase.get_version(v, "minor") }}, {{ ta_firebase.get_version(v, "bugfix") }}, {{ ta_firebase.get_version(v, "major.minor") }}, {{ ta_firebase.get_version(v, "major.minor.bugfix") }}, {{ ta_firebase.get_version(v, "normalized") }}, COALESCE(CAST( {{ ta_firebase.get_version(v, "normalized") }} AS STRING), {{ v }} )
         ) AS platform_version
-        , {{ overbase_firebase.generate_struct_for_raw_user_properties() }} as user_properties
-        , {{ overbase_firebase.generate_struct_for_raw_event_parameters() }} as event_parameters
+        , {{ ta_firebase.generate_struct_for_raw_user_properties() }} as user_properties
+        , {{ ta_firebase.generate_struct_for_raw_event_parameters() }} as event_parameters
         , user_properties as user_properties_raw
         , event_params as event_parameters_raw
         , STRUCT<city STRING , country_firebase_value STRING, iso_country_name STRING , iso_country_alpha_2 STRING, continent STRING, subcontinent STRING, region STRING, metro STRING>(
@@ -61,13 +61,13 @@ SELECT
         , STRUCT<firebase_app_id STRING, stream_id STRING, advertising_id STRING>(
             LOWER(app_info.firebase_app_id), LOWER(stream_id), LOWER({{ null_if_length_zero('device.advertising_id') }})
         ) as other_ids
-        , {{ overbase_firebase.generate_date_timezone_struct('TIMESTAMP_MICROS(event_timestamp)') }} as event_dates
-        , {{ overbase_firebase.generate_date_timezone_struct('TIMESTAMP_MICROS(user_first_touch_timestamp)') }} as install_dates
+        , {{ ta_firebase.generate_date_timezone_struct('TIMESTAMP_MICROS(event_timestamp)') }} as event_dates
+        , {{ ta_firebase.generate_date_timezone_struct('TIMESTAMP_MICROS(user_first_touch_timestamp)') }} as install_dates
         , COUNT(1) OVER (PARTITION BY user_pseudo_id, event_bundle_sequence_id, event_name, event_timestamp, event_previous_timestamp) as duplicates_cnt
 FROM 
 (
-{%- set projects = var('OVERBASE:SOURCES', []) -%}
-{%- set ready = var('OVERBASE:SOURCES_READY', false) -%}
+{%- set projects = var('TA:SOURCES', []) -%}
+{%- set ready = var('TA:SOURCES_READY', false) -%}
 
  {%- set first = (projects[0] if projects and (projects[0] is mapping) else {}) -%}
   {%- set pid0 = first.get('project_id', 'fallback_project') -%}
@@ -87,8 +87,8 @@ FROM
       '{{ ds0 }}'  as dataset_id,
       *
     FROM {{ source('firebase_analytics__fallback', 'events') }}
-    WHERE {{ overbase_firebase.analyticsTableSuffixFilter() }}
-    AND {{ overbase_firebase.analyticsDateFilterFor('DATE(TIMESTAMP_MICROS(event_timestamp))') }}
+    WHERE {{ ta_firebase.analyticsTableSuffixFilter() }}
+    AND {{ ta_firebase.analyticsDateFilterFor('DATE(TIMESTAMP_MICROS(event_timestamp))') }}
  {%- else -%}
 {%- set ns = namespace(first=true) -%}
 {%- for p in projects -%}
@@ -112,18 +112,18 @@ FROM
         '{{ ds }}' as dataset_id,
         *
       FROM {{ source('firebase_analytics__' ~ pid ~ '__' ~ ds, 'events') }}
-      WHERE {{ overbase_firebase.analyticsTableSuffixFilter() }}
-      AND {{ overbase_firebase.analyticsDateFilterFor('DATE(TIMESTAMP_MICROS(event_timestamp))') }}
+      WHERE {{ ta_firebase.analyticsTableSuffixFilter() }}
+      AND {{ ta_firebase.analyticsDateFilterFor('DATE(TIMESTAMP_MICROS(event_timestamp))') }}
     {%- endif -%}
   {%- endfor -%}
 {%- endfor -%}
 {%- endif -%}
 ) as events
-LEFT JOIN {{ref('ob_iso_country')}} as country_codes
+LEFT JOIN {{ref('ta_iso_country')}} as country_codes
     ON LOWER(events.geo.country) = LOWER(country_codes.firebase_name)
-LEFT JOIN {{ref("ob_iso_language")}} as language_codes
+LEFT JOIN {{ref("ta_iso_language")}} as language_codes
     ON LOWER(SPLIT(events.device.language,'-')[SAFE_OFFSET(0)]) = language_codes.alpha_2
-LEFT JOIN {{ref('ob_iso_country')}} as language_region_codes -- some language have 3 parts (e.g. zh-hans-us), so just get the last one
+LEFT JOIN {{ref('ta_iso_country')}} as language_region_codes -- some language have 3 parts (e.g. zh-hans-us), so just get the last one
     ON LOWER(ARRAY_REVERSE(SPLIT(events.device.language,'-'))[SAFE_OFFSET(0)]) = language_region_codes.alpha_2
 
 

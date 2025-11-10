@@ -2,7 +2,7 @@
   {%- if sqlmesh_incremental is defined -%}
     {{ dateField }} BETWEEN '{{ start_ds }}' AND '{{ end_ds }}'
   {%- else -%}
-    {%- set startEndTSTuple = overbase_firebase.analyticsStartEndTimestampsTuple(extend = extend) -%}
+    {%- set startEndTSTuple = ta_firebase.analyticsStartEndTimestampsTuple(extend = extend) -%}
     {{ dateField }} BETWEEN DATE({{ startEndTSTuple[0] }}) AND DATE({{ startEndTSTuple[1] }})
   {%- endif -%}
 {%- endmacro -%}
@@ -11,7 +11,7 @@
   {%- if sqlmesh_incremental is defined -%}
     {{ dateField }} BETWEEN '{{ start_ds }}' AND '{{ end_ds }}'
   {%- else -%}
-    {%- set startEndTSTuple = overbase_firebase.crashlyticsStartEndTimestampsTuple(extend=extend) -%}
+    {%- set startEndTSTuple = ta_firebase.crashlyticsStartEndTimestampsTuple(extend=extend) -%}
     {{ dateField }} BETWEEN DATE({{ startEndTSTuple[0] }}) AND DATE({{ startEndTSTuple[1] }})
   {%- endif -%}
 {%- endmacro -%}
@@ -20,7 +20,7 @@
   {%- if sqlmesh_incremental is defined -%}
     {{ tsField }} BETWEEN '{{ start_ds }}' AND '{{ end_ds }}'
   {%- else -%}
-    {%- set startEndTSTuple = overbase_firebase.analyticsStartEndTimestampsTuple(extend=extend) -%}
+    {%- set startEndTSTuple = ta_firebase.analyticsStartEndTimestampsTuple(extend=extend) -%}
     {{ tsField }} BETWEEN {{ startEndTSTuple[0] }} AND {{ startEndTSTuple[1] }}
   {%- endif -%}
 {%- endmacro -%}
@@ -29,7 +29,7 @@
   {%- if sqlmesh_incremental is defined -%}
     {{ tsField }}  BETWEEN '{{ start_ds }}' AND '{{ end_ds }}'
   {%- else -%}
-    {%- set startEndTSTuple = overbase_firebase.crashlyticsStartEndTimestampsTuple(extend=extend) -%}
+    {%- set startEndTSTuple = ta_firebase.crashlyticsStartEndTimestampsTuple(extend=extend) -%}
     {{ tsField }} BETWEEN {{ startEndTSTuple[0] }} AND {{ startEndTSTuple[1] }}
   {%- endif -%}
 {%- endmacro -%}
@@ -40,7 +40,7 @@
       BETWEEN FORMAT_DATE('%Y%m%d', '{{ start_ds }}' -1)
           AND FORMAT_DATE('%Y%m%d', '{{ end_ds }}')
   {%- else -%}
-    {%- set startEndTSTuple = overbase_firebase.analyticsStartEndTimestampsTuple(extend=extend + 1) -%}
+    {%- set startEndTSTuple = ta_firebase.analyticsStartEndTimestampsTuple(extend=extend + 1) -%}
     REPLACE(_TABLE_SUFFIX, 'intraday_', '')
       BETWEEN FORMAT_DATE('%Y%m%d', {{ startEndTSTuple[0] }})
           AND FORMAT_DATE('%Y%m%d', {{ startEndTSTuple[1] }})
@@ -48,25 +48,25 @@
 {%- endmacro -%}
 
 {%- macro analyticsTestDateFilter(fieldName, extend = 0) -%}
-  {{ overbase_firebase.analyticsDateFilterFor(fieldName, extend=extend) }}
+  {{ ta_firebase.analyticsDateFilterFor(fieldName, extend=extend) }}
 {%- endmacro -%}
 
 {%- macro analyticsTestTableSuffixFilter(extend = 0) -%}
-  {{ overbase_firebase.analyticsTableSuffixFilter(extend=extend) }}
+  {{ ta_firebase.analyticsTableSuffixFilter(extend=extend) }}
 {%- endmacro -%}
 
 {%- macro analyticsStartEndTimestampsTuple(forceIncremental = False, extend = 0) -%}
 	{%- if (forceIncremental or is_incremental()) -%}
-        {%- set INCREMENTAL_DAYS =  var('OVERBASE:FIREBASE_ANALYTICS_DEFAULT_INCREMENTAL_DAYS', 5 ) +extend  -%}
+        {%- set INCREMENTAL_DAYS =  var('TA:FIREBASE_ANALYTICS_DEFAULT_INCREMENTAL_DAYS', 5 ) +extend  -%}
 		{%- set tsStart = "TIMESTAMP_SUB(TIMESTAMP(CURRENT_DATE()), INTERVAL " ~  INCREMENTAL_DAYS  ~ " DAY)" -%}
 		{%- set tsEnd = "TIMESTAMP(DATE_ADD(CURRENT_DATE(), INTERVAL 1 DAY))" -%}
 		{{ return((tsStart, tsEnd)) }}
 	{%- else -%}
-		{%- set tsStart = "TIMESTAMP('" ~ var('OVERBASE:FIREBASE_ANALYTICS_FULL_REFRESH_START_DATE', '2018-01-01') ~ "')" -%}
-		{%- if var('OVERBASE:FIREBASE_ANALYTICS_FULL_REFRESH_END_DATE', "nada") == 'nada' -%}
+		{%- set tsStart = "TIMESTAMP('" ~ var('TA:FIREBASE_ANALYTICS_FULL_REFRESH_START_DATE', '2018-01-01') ~ "')" -%}
+		{%- if var('TA:FIREBASE_ANALYTICS_FULL_REFRESH_END_DATE', "nada") == 'nada' -%}
 			{%- set tsEnd = "TIMESTAMP(DATE_ADD(CURRENT_DATE(), INTERVAL 1 DAY))" -%}
 		{%- else -%}
-			{%- set tsEnd = "TIMESTAMP('" ~ var('OVERBASE:FIREBASE_ANALYTICS_FULL_REFRESH_END_DATE', "")  ~ "')" -%}
+			{%- set tsEnd = "TIMESTAMP('" ~ var('TA:FIREBASE_ANALYTICS_FULL_REFRESH_END_DATE', "")  ~ "')" -%}
 		{%- endif -%}
 		{{ return((tsStart, tsEnd)) }}
 	{%- endif -%}
@@ -76,15 +76,15 @@
 {%- macro crashlyticsStartEndTimestampsTuple(extend = 0) -%}
 	{%- if is_incremental() -%}
         {%- set INCREMENTAL_DAYS =  5 + extend -%}
-		{%- set tsStart = "TIMESTAMP_SUB(TIMESTAMP(CURRENT_DATE()), INTERVAL " ~ var('OVERBASE:FIREBASE_CRASHLYTICS_DEFAULT_INCREMENTAL_DAYS',INCREMENTAL_DAYS)  ~ " DAY)" -%}
+		{%- set tsStart = "TIMESTAMP_SUB(TIMESTAMP(CURRENT_DATE()), INTERVAL " ~ var('TA:FIREBASE_CRASHLYTICS_DEFAULT_INCREMENTAL_DAYS',INCREMENTAL_DAYS)  ~ " DAY)" -%}
 		{%- set tsEnd = "TIMESTAMP(DATE_ADD(CURRENT_DATE(), INTERVAL 1 DAY))" -%}
 		{{ return((tsStart, tsEnd)) }}
 	{%- else -%}
-		{%- set tsStart = "TIMESTAMP('" ~ var('OVERBASE:FIREBASE_CRASHLYTICS_FULL_REFRESH_START_DATE', '2018-01-01') ~ "')" -%}
-		{%- if var('OVERBASE:FIREBASE_CRASHLYTICS_FULL_REFRESH_END_DATE', "nada") == 'nada' -%}
+		{%- set tsStart = "TIMESTAMP('" ~ var('TA:FIREBASE_CRASHLYTICS_FULL_REFRESH_START_DATE', '2018-01-01') ~ "')" -%}
+		{%- if var('TA:FIREBASE_CRASHLYTICS_FULL_REFRESH_END_DATE', "nada") == 'nada' -%}
 			{%- set tsEnd = "TIMESTAMP(DATE_ADD(CURRENT_DATE(), INTERVAL 1 DAY))" -%}
 		{%- else -%}
-			{%- set tsEnd = "TIMESTAMP('" ~ var('OVERBASE:FIREBASE_CRASHLYTICS_FULL_REFRESH_END_DATE', "")  ~ "')" -%}
+			{%- set tsEnd = "TIMESTAMP('" ~ var('TA:FIREBASE_CRASHLYTICS_FULL_REFRESH_END_DATE', "")  ~ "')" -%}
 		{%- endif -%}
 		{{ return((tsStart, tsEnd)) }}
 	{%- endif -%}
