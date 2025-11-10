@@ -1,18 +1,18 @@
 {% macro generate_struct_for_raw_user_properties() -%}
-    {{ overbase_firebase.generate_struct(overbase_firebase.get_user_property_tuples_all(), 'user_properties') }}
+    {{ ta_firebase.generate_struct(ta_firebase.get_user_property_tuples_all(), 'user_properties') }}
 {%- endmacro%}
 
 {% macro generate_struct_for_raw_event_parameters() -%}
-    {{ overbase_firebase.generate_struct(overbase_firebase.get_event_parameter_tuples_for_raw(), 'event_params') }}
+    {{ ta_firebase.generate_struct(ta_firebase.get_event_parameter_tuples_for_raw(), 'event_params') }}
 {%- endmacro%}
 
 {% macro generate_struct_for_raw_crashlytics_custom_keys() -%}
-    {{ overbase_firebase.generate_struct(overbase_firebase.get_crashlytics_custom_key_tuples_all(), 'custom_keys') }}
+    {{ ta_firebase.generate_struct(ta_firebase.get_crashlytics_custom_key_tuples_all(), 'custom_keys') }}
 {%- endmacro%}
 
 
 {% macro generate_struct(all_parameters, firebase_record_name) -%}
-    {{ return(adapter.dispatch('generate_struct', 'overbase_firebase')(all_parameters, firebase_record_name) ) }}
+    {{ return(adapter.dispatch('generate_struct', 'ta_firebase')(all_parameters, firebase_record_name) ) }}
 {%- endmacro %}
 
 
@@ -33,7 +33,7 @@
     {% for parameter in all_parameters -%}
         {%- set key_name = parameter['key_name'] -%}
         {%- set extract_transformation = parameter['extract_transformation'] -%}
-        {%- set event_name_condition = overbase_firebase.makeListIntoSQLInFilter("event_name", parameter['event_name_filter']) -%}
+        {%- set event_name_condition = ta_firebase.makeListIntoSQLInFilter("event_name", parameter['event_name_filter']) -%}
         {%- set _ = structValues.append("(SELECT IF(" ~ event_name_condition ~ "," ~ extract_transformation ~ ",NULL) FROM  UNNEST(" ~ firebase_record_name ~ ") WHERE key = '" ~ key_name + "')") -%}
     {%- endfor -%}
     {%- if structFieldNames|length > 0 -%}
