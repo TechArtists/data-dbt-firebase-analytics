@@ -20,7 +20,7 @@ default:
       type: bigquery
       threads: 4
       method: service-account
-      project: overbase
+      project: ta
       schema: "{{ env_var('DBT_USER_SCHEMA') }}"
       keyfile: "{{ env_var('DBT_GCP_KEYFILE') }}" 
 
