@@ -88,6 +88,7 @@ FROM
       *
     FROM {{ source('firebase_analytics__fallback', 'events') }}
     WHERE {{ overbase_firebase.analyticsTableSuffixFilter() }}
+    AND {{ overbase_firebase.analyticsDateFilterFor('DATE(TIMESTAMP_MICROS(event_timestamp))') }}
  {%- else -%}
 {%- set ns = namespace(first=true) -%}
 {%- for p in projects -%}
@@ -112,6 +113,7 @@ FROM
         *
       FROM {{ source('firebase_analytics__' ~ pid ~ '__' ~ ds, 'events') }}
       WHERE {{ overbase_firebase.analyticsTableSuffixFilter() }}
+      AND {{ overbase_firebase.analyticsDateFilterFor('DATE(TIMESTAMP_MICROS(event_timestamp))') }}
     {%- endif -%}
   {%- endfor -%}
 {%- endfor -%}

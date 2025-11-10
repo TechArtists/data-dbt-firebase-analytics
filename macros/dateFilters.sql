@@ -1,35 +1,58 @@
-{%- macro analyticsTestDateFilter(fieldName, extend = 0) -%}
-    {{ ccDateFilterFor(fieldName, forceIncremental = True, extend = extend) }} 
-{%- endmacro %}
-
-{%- macro analyticsTestTableSuffixFilter(extend =0) -%}
-	{%- set startEndTSTuple = overbase_firebase.analyticsStartEndTimestampsTuple(forceIncremental = True, extend=extend + 1) -%}  {# extended by one day because TABLE_SUFFIX is not always UTC #}
-  REPLACE(_TABLE_SUFFIX, 'intraday_', '') BETWEEN FORMAT_DATE('%Y%m%d', {{ startEndTSTuple[0] }}) AND FORMAT_DATE('%Y%m%d', {{ startEndTSTuple[1] }})
-{%- endmacro -%}
-
-{%- macro analyticsDateFilterFor(dateField,extend = 0) -%}
-	{%- set startEndTSTuple = overbase_firebase.analyticsStartEndTimestampsTuple(extend = extend) -%}
-	{{ dateField }} BETWEEN DATE({{ startEndTSTuple[0] }}) AND DATE({{ startEndTSTuple[1] }})
+{%- macro analyticsDateFilterFor(dateField, extend = 0) -%}
+  {%- if sqlmesh_incremental is defined -%}
+    {{ dateField }} BETWEEN '{{ start_ds }}' AND '{{ end_ds }}'
+  {%- else -%}
+    {%- set startEndTSTuple = overbase_firebase.analyticsStartEndTimestampsTuple(extend = extend) -%}
+    {{ dateField }} BETWEEN DATE({{ startEndTSTuple[0] }}) AND DATE({{ startEndTSTuple[1] }})
+  {%- endif -%}
 {%- endmacro -%}
 
 {%- macro crashlyticsDateFilterFor(dateField, extend = 0) -%}
-	{%- set startEndTSTuple = overbase_firebase.crashlyticsStartEndTimestampsTuple(extend=extend) -%}
-	{{ dateField }} BETWEEN DATE({{ startEndTSTuple[0] }}) AND DATE({{ startEndTSTuple[1] }})
+  {%- if sqlmesh_incremental is defined -%}
+    {{ dateField }} BETWEEN '{{ start_ds }}' AND '{{ end_ds }}'
+  {%- else -%}
+    {%- set startEndTSTuple = overbase_firebase.crashlyticsStartEndTimestampsTuple(extend=extend) -%}
+    {{ dateField }} BETWEEN DATE({{ startEndTSTuple[0] }}) AND DATE({{ startEndTSTuple[1] }})
+  {%- endif -%}
 {%- endmacro -%}
 
 {%- macro analyticsTSFilterFor(tsField, extend = 0) -%}
-	{%- set startEndTSTuple = overbase_firebase.analyticsStartEndTimestampsTuple(extend=extend) -%}
-	{{ tsField }} BETWEEN {{ startEndTSTuple[0] }} AND {{ startEndTSTuple[1] }}	
+  {%- if sqlmesh_incremental is defined -%}
+    {{ tsField }} BETWEEN '{{ start_ds }}' AND '{{ end_ds }}'
+  {%- else -%}
+    {%- set startEndTSTuple = overbase_firebase.analyticsStartEndTimestampsTuple(extend=extend) -%}
+    {{ tsField }} BETWEEN {{ startEndTSTuple[0] }} AND {{ startEndTSTuple[1] }}
+  {%- endif -%}
 {%- endmacro -%}
 
 {%- macro crashlyticsTSFilterFor(tsField, extend = 0) -%}
-	{%- set startEndTSTuple = overbase_firebase.crashlyticsStartEndTimestampsTuple(extend=extend) -%}
-	{{ tsField }} BETWEEN {{ startEndTSTuple[0] }} AND {{ startEndTSTuple[1] }}	
+  {%- if sqlmesh_incremental is defined -%}
+    {{ tsField }}  BETWEEN '{{ start_ds }}' AND '{{ end_ds }}'
+  {%- else -%}
+    {%- set startEndTSTuple = overbase_firebase.crashlyticsStartEndTimestampsTuple(extend=extend) -%}
+    {{ tsField }} BETWEEN {{ startEndTSTuple[0] }} AND {{ startEndTSTuple[1] }}
+  {%- endif -%}
 {%- endmacro -%}
 
-{%- macro analyticsTableSuffixFilter(extend =0) -%}
-	{%- set startEndTSTuple = overbase_firebase.analyticsStartEndTimestampsTuple(extend=extend + 1) -%}  {# extended by one day because TABLE_SUFFIX is not always UTC #}
-  REPLACE(_TABLE_SUFFIX, 'intraday_', '') BETWEEN FORMAT_DATE('%Y%m%d', {{ startEndTSTuple[0] }}) AND FORMAT_DATE('%Y%m%d', {{ startEndTSTuple[1] }})
+{%- macro analyticsTableSuffixFilter(extend = 0) -%}
+  {%- if sqlmesh_incremental is defined -%}
+    REPLACE(_TABLE_SUFFIX, 'intraday_', '')
+      BETWEEN FORMAT_DATE('%Y%m%d', '{{ start_ds }}' -1)
+          AND FORMAT_DATE('%Y%m%d', '{{ end_ds }}')
+  {%- else -%}
+    {%- set startEndTSTuple = overbase_firebase.analyticsStartEndTimestampsTuple(extend=extend + 1) -%}
+    REPLACE(_TABLE_SUFFIX, 'intraday_', '')
+      BETWEEN FORMAT_DATE('%Y%m%d', {{ startEndTSTuple[0] }})
+          AND FORMAT_DATE('%Y%m%d', {{ startEndTSTuple[1] }})
+  {%- endif -%}
+{%- endmacro -%}
+
+{%- macro analyticsTestDateFilter(fieldName, extend = 0) -%}
+  {{ overbase_firebase.analyticsDateFilterFor(fieldName, extend=extend) }}
+{%- endmacro -%}
+
+{%- macro analyticsTestTableSuffixFilter(extend = 0) -%}
+  {{ overbase_firebase.analyticsTableSuffixFilter(extend=extend) }}
 {%- endmacro -%}
 
 {%- macro analyticsStartEndTimestampsTuple(forceIncremental = False, extend = 0) -%}
