@@ -5,19 +5,19 @@
 ] -%}
 
 
-{%- set miniColumnsToIgnoreInGroupBy = ta_firebase..get_mini_columns_to_ignore_when_rolling_up() -%}
+{%- set miniColumnsToIgnoreInGroupBy = ta_firebase.get_mini_columns_to_ignore_when_rolling_up() -%}
 
 {# Ignore all time zones except the first & last (they're all the same, just save the computational effort) #}
-{%- set timezones = ta_firebase..generate_date_timezone_age_struct('dont care') | map(attribute=0) | list -%}
+{%- set timezones = ta_firebase.generate_date_timezone_age_struct('dont care') | map(attribute=0) | list -%}
 {%- set timezones = timezones[1:-1] -%}
-{%- set miniColumnsToIgnoreInGroupBy = miniColumnsToIgnoreInGroupBy + ta_firebase..list_map_and_add_prefix(timezones, 'event_dates.') + ta_firebase..list_map_and_add_prefix(timezones, 'install_dates.') -%}
+{%- set miniColumnsToIgnoreInGroupBy = miniColumnsToIgnoreInGroupBy + ta_firebase.list_map_and_add_prefix(timezones, 'event_dates.') + ta_firebase.list_map_and_add_prefix(timezones, 'install_dates.') -%}
 
 
-{%- set tmp_res = ta_firebase..get_filtered_columns_for_table("fb_analytics_events_raw", columnNamesEventDimensions, miniColumnsToIgnoreInGroupBy) -%}
+{%- set tmp_res = ta_firebase.get_filtered_columns_for_table("fb_analytics_events_raw", columnNamesEventDimensions, miniColumnsToIgnoreInGroupBy) -%}
 {%- set columnsForEventDimensions = tmp_res[0] -%}
 
 
-{%- set minicolumns = ta_firebase..unpack_columns_into_minicolumns_array(columnsForEventDimensions, miniColumnsToIgnoreInGroupBy, [], "", "") -%}
+{%- set minicolumns = ta_firebase.unpack_columns_into_minicolumns_array(columnsForEventDimensions, miniColumnsToIgnoreInGroupBy, [], "", "") -%}
 {%- set unionAllSelects = [] -%}
 
 WITH

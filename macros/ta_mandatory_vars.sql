@@ -2,7 +2,7 @@
 -- the default value is meant only to be used within this project, as test values 
 {% macro compile_time_mandatory_var(variable_name, default_value_in_ta) -%}
 {% if var(variable_name, default_value_in_ta) == default_value_in_ta and env_var('DBT_INSIDE_TA','')|length == 0 -%}
-   {{ exceptions.raise_compiler_error("Variable '%s' must be overwritten inside your dbt_project.yml. Check the Overbase documentation to see all mandatory variables" % variable_name) }}
+   {{ exceptions.raise_compiler_error("Variable '%s' must be overwritten inside your dbt_project.yml. Check the TA documentation to see all mandatory variables" % variable_name) }}
 {% else %}
 {%- endif %}
 {%- endmacro %}

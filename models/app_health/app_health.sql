@@ -13,19 +13,19 @@
 {# mini_measures": ["cnt", "users"] are implicit in all of them, as the default #}
 {%- set builtinMeasures = [
   {"model": "analytics", "name":"user_engagement"  , "agg": "SUM(##)", "event_name": "user_engagement"},
-  {"model": "analytics", "name":"ob_app_foreground", "agg": "SUM(##)", "event_name": "ob_app_foreground"},
-  {"model": "analytics", "name":"ob_app_background", "agg": "SUM(##)", "event_name": "ob_app_background"},
+  {"model": "analytics", "name":"ta_app_foreground", "agg": "SUM(##)", "event_name": "ta_app_foreground"},
+  {"model": "analytics", "name":"ta_app_background", "agg": "SUM(##)", "event_name": "ta_app_background"},
   {"model": "analytics", "name":"app_update"   , "agg": "SUM(##)", "event_name": "app_update"},
-  {"model": "analytics", "name":"ob_app_update", "agg": "SUM(##)", "event_name": "ob_app_update"},
+  {"model": "analytics", "name":"ta_app_update", "agg": "SUM(##)", "event_name": "ta_app_update"},
   {"model": "analytics", "name":"errors"  , "agg": "SUM(##)", "event_name": "LIKE 'error_%'"},
-  {"model": "analytics", "name":"ob_errors"  , "agg": "SUM(##)", "event_name": "LIKE 'ob_error_%'"},
+  {"model": "analytics", "name":"ta_errors"  , "agg": "SUM(##)", "event_name": "LIKE 'ta_error_%'"},
 
   {"model": "crashlytics", "name":"crashlytics_all_errors", "agg": "SUM(##)"},
   {"model": "crashlytics", "name":"fatal_crashes", "agg": "SUM(##)", "additional_filter": "error_type = 'FATAL'"},
   {"model": "crashlytics", "name":"fatal_foreground_crashes", "agg": "SUM(##)", "additional_filter": "error_type = 'FATAL' AND process_state = 'FOREGROUND'"},
   {"model": "crashlytics", "name":"fatal_background_crashes", "agg": "SUM(##)", "additional_filter": "error_type = 'FATAL' AND process_state = 'BACKGROUND' "}
 ] %}
-{%- set allUnprocessedHealthMeasures = builtinMeasures + var("OVERBASE:CUSTOM_APP_HEALTH_MEASURES", []) %}
+{%- set allUnprocessedHealthMeasures = builtinMeasures + var("TA:CUSTOM_APP_HEALTH_MEASURES", []) %}
 {%- set allAnalyticsEventNames = set([]) -%}
 {%- set allAnalyticsForcedNullEventNames = set([]) -%}
 {%- for customHealthMeasure in allUnprocessedHealthMeasures -%}
@@ -74,8 +74,8 @@ WITH analytics AS (
            {% endfor -%}
           , {{ custom_summed_measures | selectattr("model", "equalto", "analytics") | map(attribute='agg')|join("\n          , ") }}
     FROM {{ ref("fb_analytics_events") }}
-    WHERE {{ overbase_firebase.analyticsDateFilterFor('event_date') }}
-    AND {{ overbase_firebase.makeListIntoSQLInFilter("event_name", allAnalyticsEventNames| list) }}
+    WHERE {{ ta_firebase.analyticsDateFilterFor('event_date') }}
+    AND {{ ta_firebase.makeListIntoSQLInFilter("event_name", allAnalyticsEventNames| list) }}
     GROUP BY {{ range(1, 1 + commonDimensionsAndAliases | length) | list | join(",") }} 
 )
 , analyticsForcedNulls AS (
@@ -86,11 +86,11 @@ WITH analytics AS (
             , {{ measure }}
           {%- endfor %}
     FROM {{ ref("fb_analytics_events_forced_nulls") }}
-    WHERE {{ overbase_firebase.analyticsDateFilterFor('event_date') }}
+    WHERE {{ ta_firebase.analyticsDateFilterFor('event_date') }}
     {% if allAnalyticsForcedNullEventNames | length == 0 -%}
     AND False
     {%- else -%}
-    AND {{ overbase_firebase.makeListIntoSQLInFilter("event_name", allAnalyticsForcedNullEventNames| list) }}
+    AND {{ ta_firebase.makeListIntoSQLInFilter("event_name", allAnalyticsForcedNullEventNames| list) }}
     {%- endif %}
     GROUP BY {{ range(1, 1 + commonDimensionsAndAliases | length) | list | join(",") }} 
 )
@@ -100,7 +100,7 @@ WITH analytics AS (
            {% endfor -%}
           , SUM(users) as users
     FROM {{ ref("fb_analytics_installs") }}
-    WHERE {{ overbase_firebase.analyticsDateFilterFor('event_date') }}
+    WHERE {{ ta_firebase.analyticsDateFilterFor('event_date') }}
     GROUP BY {{ range(1, 1 + commonDimensionsAndAliases | length) | list | join(",") }} 
 )
 , crashlytics AS (
@@ -109,7 +109,7 @@ WITH analytics AS (
            {% endfor -%}
             , {{ custom_summed_measures | selectattr("model", "equalto", "crashlytics") | map(attribute='agg')|join("\n          , ") }}
     FROM {{ ref("fb_crashlytics_events") }}
-    WHERE {{ overbase_firebase.crashlyticsDateFilterFor('event_date') }}
+    WHERE {{ ta_firebase.crashlyticsDateFilterFor('event_date') }}
     GROUP BY {{ range(1, 1 + commonDimensionsAndAliases | length) | list | join(",") }} 
 )
 , joined_unpacked AS (
@@ -136,13 +136,13 @@ SELECT  event_date
       , platform 
       , app_id
       , reverse_app_id
-      , {{ overbase_firebase.get_version_record_from_normalized('app_version_join_value') }} AS app_version
-      , {{ overbase_firebase.get_version_record_from_normalized('platform_version_join_value') }} AS platform_version
+      , {{ ta_firebase.get_version_record_from_normalized('app_version_join_value') }} AS app_version
+      , {{ ta_firebase.get_version_record_from_normalized('platform_version_join_value') }} AS platform_version
       , STRUCT<type STRING, manufacturer STRING, os_model STRING>(
          device_hardware_type, device_hardware_manufacturer, device_hardware_os_model
       ) as device_hardware
       , installs
-      , {{ overbase_firebase.list_map_and_add_prefix(custom_summed_measures | map(attribute='alias')) | join("\n          ,") }}
+      , {{ ta_firebase.list_map_and_add_prefix(custom_summed_measures | map(attribute='alias')) | join("\n          ,") }}
      
 FROM joined_unpacked
 
