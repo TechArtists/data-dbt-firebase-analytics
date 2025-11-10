@@ -1,4 +1,4 @@
-{{ overbase_firebase.verify_all_overbase_mandatory_variables() }}
+{{ ta_firebase.verify_all_ta_mandatory_variables() }}
 
 {{ config(
     materialized='incremental',
@@ -13,8 +13,8 @@
 
 -- https://firebase.google.com/docs/crashlytics/bigquery-export#without_stack_traces
 
-{% set projects = var('OVERBASE:SOURCES', []) %}
-{% set ready = var('OVERBASE:SOURCES_READY', false) %}
+{% set projects = var('TA:SOURCES', []) %}
+{% set ready = var('TA:SOURCES_READY', false) %}
 
 {% set first = projects[0] if projects and (projects[0] is mapping) else {} %}
 {% set pid0 = first.get('project_id', 'fallback_project') %}
@@ -51,17 +51,17 @@
           ) as orientation
         , STRUCT<firebase_value STRING, build_no STRING, major INT64, minor INT64, bugfix INT64, major_minor FLOAT64, major_minor_bugfix STRING, normalized INT64, join_value STRING>(
             {%- set v = "application.display_version" -%}
-            {{ v }}, application.build_version, {{ overbase_firebase.get_version(v, "major") }}, {{ overbase_firebase.get_version(v, "minor") }}, {{ overbase_firebase.get_version(v, "bugfix") }}, {{ overbase_firebase.get_version(v, "major.minor") }}, {{ overbase_firebase.get_version(v, "major.minor.bugfix") }}, {{ overbase_firebase.get_version(v, "normalized") }}, COALESCE(CAST({{ overbase_firebase.get_version(v, "normalized") }} AS STRING), {{ v }} )
+            {{ v }}, application.build_version, {{ ta_firebase.get_version(v, "major") }}, {{ ta_firebase.get_version(v, "minor") }}, {{ ta_firebase.get_version(v, "bugfix") }}, {{ ta_firebase.get_version(v, "major.minor") }}, {{ ta_firebase.get_version(v, "major.minor.bugfix") }}, {{ ta_firebase.get_version(v, "normalized") }}, COALESCE(CAST({{ ta_firebase.get_version(v, "normalized") }} AS STRING), {{ v }} )
         ) AS app_version
         , STRUCT<firebase_value STRING, name STRING, major INT64, minor INT64, bugfix INT64, major_minor FLOAT64, major_minor_bugfix STRING, normalized INT64, join_value STRING>(
             {%- set v = "operating_system.display_version" -%}
-            {{ v }}, operating_system.name, {{ overbase_firebase.get_version(v, "major") }}, {{ overbase_firebase.get_version(v, "minor") }}, {{ overbase_firebase.get_version(v, "bugfix") }}, {{ overbase_firebase.get_version(v, "major.minor") }}, {{ overbase_firebase.get_version(v, "major.minor.bugfix") }}, {{ overbase_firebase.get_version(v, "normalized") }}, COALESCE(CAST( {{ overbase_firebase.get_version(v, "normalized") }} AS STRING), {{ v }} )
+            {{ v }}, operating_system.name, {{ ta_firebase.get_version(v, "major") }}, {{ ta_firebase.get_version(v, "minor") }}, {{ ta_firebase.get_version(v, "bugfix") }}, {{ ta_firebase.get_version(v, "major.minor") }}, {{ ta_firebase.get_version(v, "major.minor.bugfix") }}, {{ ta_firebase.get_version(v, "normalized") }}, COALESCE(CAST( {{ ta_firebase.get_version(v, "normalized") }} AS STRING), {{ v }} )
         ) AS platform_version
         , operating_system.modification_state as jailbroken_state
         , STRUCT<type STRING, manufacturer STRING, os_model STRING, architecture STRING>(
             LOWER(operating_system.device_type), LOWER(device.manufacturer), LOWER(device.model), device.architecture 
         ) AS device_hardware
-        , {{ overbase_firebase.generate_struct_for_raw_crashlytics_custom_keys() }} as custom_keys
+        , {{ ta_firebase.generate_struct_for_raw_crashlytics_custom_keys() }} as custom_keys
         , custom_keys as custom_keys_raw
         , STRUCT<used_bytes INT64, free_bytes INT64>(memory.used, memory.free) as memory
         , STRUCT<used_bytes INT64, free_bytes INT64>(storage.used, storage.free) as storage
@@ -87,14 +87,14 @@
              + screen_refresh_rate
             Those values are NULLed for the time being
           #}
-          {{ overbase_firebase.list_map_and_add_prefix([
+          {{ ta_firebase.list_map_and_add_prefix([
             "unity_version","debug_build","processor_type","processor_count",none,none,none,"graphics_device_id","graphics_device_vendor_id","graphics_device_name","graphics_device_vendor","graphics_device_version","graphics_device_type","graphics_shader_level","graphics_render_target_count","graphics_copy_texture_support","graphics_max_texture_size",none,none,none,"processor_frequency_mhz","system_memory_size_mb","graphics_memory_size_mb","screen_size_px","screen_refresh_rate_hz","screen_resolution_dpi"
             ], "unity_metadata." )| join(", ") }}
           ) AS unity_metadata
         , COUNT(1) OVER (PARTITION BY installation_uuid, event_id, variant_id) as duplicates_cnt
 
     FROM {{ source('firebase_crashlytics__fallback', 'events') }}
-    WHERE {{ overbase_firebase.crashlyticsTSFilterFor("event_timestamp") }}
+    WHERE {{ ta_firebase.crashlyticsTSFilterFor("event_timestamp") }}
     QUALIFY ROW_NUMBER() OVER (PARTITION BY crashlytics_user_pseudo_id, event_id, variant_id ORDER BY received_ts) = 1
 
 {% else %}
@@ -133,17 +133,17 @@
           ) as orientation
         , STRUCT<firebase_value STRING, build_no STRING, major INT64, minor INT64, bugfix INT64, major_minor FLOAT64, major_minor_bugfix STRING, normalized INT64, join_value STRING>(
             {%- set v = "application.display_version" -%}
-            {{ v }}, application.build_version, {{ overbase_firebase.get_version(v, "major") }}, {{ overbase_firebase.get_version(v, "minor") }}, {{ overbase_firebase.get_version(v, "bugfix") }}, {{ overbase_firebase.get_version(v, "major.minor") }}, {{ overbase_firebase.get_version(v, "major.minor.bugfix") }}, {{ overbase_firebase.get_version(v, "normalized") }}, COALESCE(CAST({{ overbase_firebase.get_version(v, "normalized") }} AS STRING), {{ v }} )
+            {{ v }}, application.build_version, {{ ta_firebase.get_version(v, "major") }}, {{ ta_firebase.get_version(v, "minor") }}, {{ ta_firebase.get_version(v, "bugfix") }}, {{ ta_firebase.get_version(v, "major.minor") }}, {{ ta_firebase.get_version(v, "major.minor.bugfix") }}, {{ ta_firebase.get_version(v, "normalized") }}, COALESCE(CAST({{ ta_firebase.get_version(v, "normalized") }} AS STRING), {{ v }} )
         ) AS app_version
         , STRUCT<firebase_value STRING, name STRING, major INT64, minor INT64, bugfix INT64, major_minor FLOAT64, major_minor_bugfix STRING, normalized INT64, join_value STRING>(
             {%- set v = "operating_system.display_version" -%}
-            {{ v }}, operating_system.name, {{ overbase_firebase.get_version(v, "major") }}, {{ overbase_firebase.get_version(v, "minor") }}, {{ overbase_firebase.get_version(v, "bugfix") }}, {{ overbase_firebase.get_version(v, "major.minor") }}, {{ overbase_firebase.get_version(v, "major.minor.bugfix") }}, {{ overbase_firebase.get_version(v, "normalized") }}, COALESCE(CAST( {{ overbase_firebase.get_version(v, "normalized") }} AS STRING), {{ v }} )
+            {{ v }}, operating_system.name, {{ ta_firebase.get_version(v, "major") }}, {{ ta_firebase.get_version(v, "minor") }}, {{ ta_firebase.get_version(v, "bugfix") }}, {{ ta_firebase.get_version(v, "major.minor") }}, {{ ta_firebase.get_version(v, "major.minor.bugfix") }}, {{ ta_firebase.get_version(v, "normalized") }}, COALESCE(CAST( {{ ta_firebase.get_version(v, "normalized") }} AS STRING), {{ v }} )
         ) AS platform_version
         , operating_system.modification_state as jailbroken_state
         , STRUCT<type STRING, manufacturer STRING, os_model STRING, architecture STRING>(
             LOWER(operating_system.device_type), LOWER(device.manufacturer), LOWER(device.model), device.architecture 
         ) AS device_hardware
-        , {{ overbase_firebase.generate_struct_for_raw_crashlytics_custom_keys() }} as custom_keys
+        , {{ ta_firebase.generate_struct_for_raw_crashlytics_custom_keys() }} as custom_keys
         , custom_keys as custom_keys_raw
         , STRUCT<used_bytes INT64, free_bytes INT64>(memory.used, memory.free) as memory
         , STRUCT<used_bytes INT64, free_bytes INT64>(storage.used, storage.free) as storage
@@ -169,14 +169,14 @@
              + screen_refresh_rate
             Those values are NULLed for the time being
           #}
-          {{ overbase_firebase.list_map_and_add_prefix([
+          {{ ta_firebase.list_map_and_add_prefix([
             "unity_version","debug_build","processor_type","processor_count",none,none,none,"graphics_device_id","graphics_device_vendor_id","graphics_device_name","graphics_device_vendor","graphics_device_version","graphics_device_type","graphics_shader_level","graphics_render_target_count","graphics_copy_texture_support","graphics_max_texture_size",none,none,none,"processor_frequency_mhz","system_memory_size_mb","graphics_memory_size_mb","screen_size_px","screen_refresh_rate_hz","screen_resolution_dpi"
             ], "unity_metadata." )| join(", ") }}
           ) AS unity_metadata
         , COUNT(1) OVER (PARTITION BY installation_uuid, event_id, variant_id) as duplicates_cnt
 
             FROM {{ source('firebase_crashlytics__' ~ pid, 'events') }}
-            WHERE {{ overbase_firebase.crashlyticsTSFilterFor("event_timestamp") }}
+            WHERE {{ ta_firebase.crashlyticsTSFilterFor("event_timestamp") }}
 
         {% endif %}
     QUALIFY ROW_NUMBER() OVER (PARTITION BY crashlytics_user_pseudo_id, event_id, variant_id ORDER BY received_ts) = 1
