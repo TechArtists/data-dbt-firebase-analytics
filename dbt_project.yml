@@ -1,5 +1,5 @@
-name: 'overbase_firebase'
-version: '0.9.10'
+name: 'ta_firebase'
+version: '0.9.13'
 config-version: 2
 
 # This setting configures which "profile" dbt uses for this project.
@@ -18,23 +18,23 @@ clean-targets:         # directories to be removed by `dbt clean`
   - "dbt_packages"
 
 models:
-  overbase_firebase:
+  ta_firebase:
     # Applies to all files under models/example/
     materialized: table
-    schema: overbase
+    schema: ta_firebase
     +persist_docs:
       relation: true
       columns: true
 
 seeds:
-  overbase_firebase:
-    schema: overbase
+  ta_firebase:
+    schema: ta
 
 vars: 
-  overbase_firebase:
-    "OVERBASE:DONT_CARE": "MAKE_YAML_WORK" # optional
-    "OVERBASE:SOURCES_READY" : false
-    # "OVERBASE:SOURCES":
+  ta_firebase:
+    "TA:DONT_CARE": "MAKE_YAML_WORK" # optional
+    "TA:SOURCES_READY" : false
+    # "TA:SOURCES":
     #   - {project_id: watermark-maker,
     #     analytics_dataset_id: analytics_150733022,
     #     events_table: events_*,
@@ -50,24 +50,24 @@ vars:
     # don't define variables here, because if they aren't overwritten in the client yml, then they will resolve to "None". 
     # Instead, use them in the package where you need them with them with the appropriate default value
     # Furthermore, whatever we use in sources.yml, we can't define in this package's dbt_project.yml, or else they won't be able to be overwritten by the client
-    # Any mandatory variables you want to be enforced should go into overbase_mandatory_vars.sql
+    # Any mandatory variables you want to be enforced should go into ta_mandatory_vars.sql
     # The comments liste here is just for our sanity & easier c/p in client configs
-    # "OVERBASE:FIREBASE_ANALYTICS_CUSTOM_INSTALL_EVENT": "" # optional e.g. attributed_first_open
-    # "OVERBASE:CUSTOM_PLATFORM_PREPROCESSOR": "IF(app_info.version LIKE '%nexus', 'nexus', platform)"
-    # "OVERBASE:FIREBASE_ANALYTICS_DEFAULT_INCREMENTAL_DAYS":  # optional
-    # "OVERBASE:FIREBASE_CRASHLYTICS_DEFAULT_INCREMENTAL_DAYS":  # optional
-    # "OVERBASE:FIREBASE_ANALYTICS_FULL_REFRESH_START_DATE": "2018-01-01" # mandatory
-    # "OVERBASE:FIREBASE_ANALYTICS_FULL_REFRESH_END_DATE": "2019-01-05" #optional, if you want to make
-    # "OVERBASE:FIREBASE_CRASHLYTICS_FULL_REFRESH_START_DATE": "2018-01-01" # mandatory
-    # "OVERBASE:FIREBASE_CRASHLYTICS_FULL_REFRESH_END_DATE": "20219-01-05" #optional, if you want to make
-    # "OVERBASE:OB_DIMENSION_TO_EXCLUDE_IN_ROLLUPS":  # optional, what built-in OB dimensions to exclude from bubbling up in the rollups (& save the row count)
+    # "TA:FIREBASE_ANALYTICS_CUSTOM_INSTALL_EVENT": "" # optional e.g. attributed_first_open
+    # "TA:CUSTOM_PLATFORM_PREPROCESSOR": "IF(app_info.version LIKE '%nexus', 'nexus', platform)"
+    # "TA:FIREBASE_ANALYTICS_DEFAULT_INCREMENTAL_DAYS":  # optional
+    # "TA:FIREBASE_CRASHLYTICS_DEFAULT_INCREMENTAL_DAYS":  # optional
+    # "TA:FIREBASE_ANALYTICS_FULL_REFRESH_START_DATE": "2018-01-01" # mandatory
+    # "TA:FIREBASE_ANALYTICS_FULL_REFRESH_END_DATE": "2019-01-05" #optional, if you want to make
+    # "TA:FIREBASE_CRASHLYTICS_FULL_REFRESH_START_DATE": "2018-01-01" # mandatory
+    # "TA:FIREBASE_CRASHLYTICS_FULL_REFRESH_END_DATE": "20219-01-05" #optional, if you want to make
+    # "TA:DIMENSION_TO_EXCLUDE_IN_ROLLUPS":  # optional, what built-in TA dimensions to exclude from bubbling up in the rollups (& save the row count)
     #   - geo.city
     #   - geo.metro
-    # "OVERBASE:CUSTOM_USER_PROPERTIES":  # data_types : "string", "int", "double"
+    # "TA:CUSTOM_USER_PROPERTIES":  # data_types : "string", "int", "double"
           # - { key_name: up_just_in_raw, data_type: 'string'} 
           # - { key_name: first_open_time, data_type: 'int'} 
           # - { key_name: poorly_set_variable, data_type: 'double'}
-    # "OVERBASE:CUSTOM_EVENT_PARAMETERS":  # data_types : "string", "int", "double"
+    # "TA:CUSTOM_EVENT_PARAMETERS":  # data_types : "string", "int", "double"
           # - { key_name: quantity, data_type: 'int',  rollup_type: 'metric'}
           # - { key_name: quantity, data_type: 'int',  rollup_type: 'metric', metric_rollup_transformation: 'SUM(##)', struct_field_name: 'quantity_int2' }
           # - { key_name: quantity, data_type: 'int',  rollup_type: 'metric', metric_rollup_transformation: 'AVG(##)', struct_field_name: 'quantity_int3', rollup_struct_field_name: 'cm_quantity_avg' }
@@ -97,13 +97,13 @@ vars:
     #       - { key_name: quantity, data_type: 'int',  rollup_type: 'metric', metric_rollup_transformation: 'AVG(##)', struct_field_name: 'quantity_avg' }
     #       - { key_name: quantity, data_type: 'int',  rollup_type: 'metricOnly', metric_rollup_transformation: 'SUM(##)', struct_field_name: 'quantity_int_sum2' }
           # - { key_name: server_sent_ts, data_type: 'string',  rollup_type: 'raw', extract_transformation: 'TIMESTAMP(##)', output_data_type: 'TIMESTAMP', struct_field_name: 'server_sent_ts' }
-    # "OVERBASE:CUSTOM_CRASHLYTICS_KEYS":  # data_types : "string", "int", "float", "double"
+    # "TA:CUSTOM_CRASHLYTICS_KEYS":  # data_types : "string", "int", "float", "double"
           # - { key_name: network_state, data_type: 'string'}
-    # "OVERBASE:CUSTOM_APP_HEALTH_MEASURES":  # optional, any custom measures that you want rolled up in the app_health model
+    # "TA:CUSTOM_APP_HEALTH_MEASURES":  # optional, any custom measures that you want rolled up in the app_health model
     #         - name: signup_step_1 #no spaces, needs to be a proper column name
     #           model: analytics_forced_nulls # optional. It can either be analytics/analytics-forced-nulls/crashlytics. Default is analytics
     #           agg: SUM(##)
-    #           event_name: ui_view_shown
+    #           event_name: ui_view_show
     #           # mini_measures: ["cnt", "users"] # optional, the default it aggregates over if unspecified
     #           additional_filter  : event_parameters.view_name_string = 'signup step 1'
     #         - name: svc_inbound_duration
@@ -115,11 +115,11 @@ vars:
     #           model: crashlytics
     #           agg: SUM(##)
     #           additional_filter: error_type = 'FATAL' AND custom_keys.call_state = 'duringCall'
-    # "OVERBASE:CUSTOM_APP_HEALTH_METRICS": # TODO later on, forward to the BI tool as the semantic layer
+    # "TA:CUSTOM_APP_HEALTH_METRICS": # TODO later on, forward to the BI tool as the semantic layer
           # NOT IMPLEMENTED ATM
           # -  name: signup_ratio 
           #    type: ratio 
           #    numerator_agg: SUM(##)
-          #    numerator_filter  : event_name LIKE '%view_shown' AND event_parameters.view_name_string = 'signup step 1' AND event_parameters.view_type_string = 'ob-forced-null'
+          #    numerator_filter  : event_name LIKE '%view_show' AND event_parameters.view_name_string = 'signup step 1' AND event_parameters.view_type_string = 'ta-forced-null'
           #    denominator_agg: SUM(##)
-          #    denominator_filter: event_name LIKE '%view_shown' AND event_parameters.view_name_string = 'signup step 5' AND event_parameters.view_type_string = 'ob-forced-null'
+          #    denominator_filter: event_name LIKE '%view_show' AND event_parameters.view_name_string = 'signup step 5' AND event_parameters.view_type_string = 'ta-forced-null'

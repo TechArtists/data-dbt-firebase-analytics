@@ -4,7 +4,7 @@ Welcome to your new dbt project!
 
 
 This library works by default for one google cloud project:
-# "OVERBASE:SOURCES":
+# "TA:SOURCES":
     #   - {project_id: google_cloud_project_id,
     #     analytics_dataset_id: schema_id,
     #     events_table: events_table_prefix*,
@@ -14,12 +14,12 @@ This library works by default for one google cloud project:
 Adding more project_ids and multiple dataset_ids for specific datasets is also possible.
 A few additional steps are required for multiple sources to be added as sources.
 
-1) OVERBASE:SOURCES_READY must be set to false (default).
-2) add projects and datasets to the OVERBASE:SOURCES variable in your dbt project
+1) TA:SOURCES_READY must be set to false (default).
+2) add projects and datasets to the TA:SOURCES variable in your dbt project
 3) run the following command to generate sources for all projects: 
 dbt run-operation -q generate_firebase_sources > models/firebase_sources.yml 
-4) change OVERBASE:SOURCES_READY to true
-# "OVERBASE:SOURCES":
+4) change TA:SOURCES_READY to true
+# "TA:SOURCES":
     #   - {project_id: google_cloud_project_id,
     #     analytics_dataset_id: schema_id,
     #     events_table: events_table_prefix*,

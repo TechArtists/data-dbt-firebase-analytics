@@ -1,5 +1,5 @@
 {% macro get_version(version, type) -%}
-    {{ return(adapter.dispatch('get_version', 'overbase_firebase')(version, type)) }}
+    {{ return(adapter.dispatch('get_version', 'ta_firebase')(version, type)) }}
 {%- endmacro %}
 
 {% macro bigquery__get_version(version, type) -%}
@@ -11,7 +11,7 @@
     {%- elif type == 'bugfix' -%}
         SAFE_CAST(SPLIT({{ cleaned_version }}, '.')[SAFE_OFFSET(2)] AS INT64)
     {%- elif type == 'major.minor' -%}
-        SAFE_CAST(CONCAT( {{ overbase_firebase.get_version(cleaned_version, 'major') }} , ".",  COALESCE({{ overbase_firebase.get_version(cleaned_version, 'minor') }}, 0) ) AS FLOAT64)
+        SAFE_CAST(CONCAT( {{ ta_firebase.get_version(cleaned_version, 'major') }} , ".",  COALESCE({{ ta_firebase.get_version(cleaned_version, 'minor') }}, 0) ) AS FLOAT64)
     {%- elif type == 'major.minor.bugfix' -%}
         {#  17 -> 17; 17.0 -> 17.0; 17.0.1 -> 17.0.1  #}
         CASE WHEN REGEXP_CONTAINS({{ cleaned_version }}, r'^[0-9.]*$') AND ARRAY_LENGTH(SPLIT({{ cleaned_version }}, '.')) <= 3 THEN

@@ -1,5 +1,5 @@
 {% macro generate_firebase_sources(
-    var_name='OVERBASE:SOURCES',
+    var_name='TA:SOURCES',
     source_prefix='firebase',
     indent=2,
     include_comments=true

@@ -13,7 +13,7 @@
     {%- set miniColumnsToIgnoreSet = set(miniColumnsToIgnore) -%}
     {%- set columnsUnnestedCount = [] -%}
 
-    {%- set columns = overbase_firebase.convert_columns_to_dicts(adapter.get_columns_in_relation(ref(table_name))) -%}
+    {%- set columns = ta_firebase.convert_columns_to_dicts(adapter.get_columns_in_relation(ref(table_name))) -%}
     {%- set columnsToGroupBy = [] -%}
 
     {%- for column in columns -%}
@@ -44,7 +44,7 @@
 {%- macro convert_columns_to_dicts(columns) -%}
 {%- set res = [] -%}
 {%- for column in columns -%}
-    {# for STRUCTs, BQ will write backticks too: STRUCT<`ob_view_name_string` STRING #}
+    {# for STRUCTs, BQ will write backticks too: STRUCT<`ta_view_name_string` STRING #}
     {%- set _ = res.append({"data_type": column.data_type.replace('`', ''), "name": column.name }) -%}
 {%- endfor -%}
 {{ return(res) }}

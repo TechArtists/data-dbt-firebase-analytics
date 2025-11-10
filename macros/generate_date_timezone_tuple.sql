@@ -3,10 +3,10 @@
 #}
 {%- macro generate_date_timezone_struct(tsField) -%}
     STRUCT<
-    {%- for timezoneTuple in overbase_firebase.generate_datetime_timezone_tuple(tsField) -%}
+    {%- for timezoneTuple in ta_firebase.generate_datetime_timezone_tuple(tsField) -%}
             {{ timezoneTuple[0] }} DATE {{ ", " if not loop.last else "" }}
     {%- endfor -%}>(
-    {% for timezoneTuple in overbase_firebase.generate_datetime_timezone_tuple(tsField) -%}
+    {% for timezoneTuple in ta_firebase.generate_datetime_timezone_tuple(tsField) -%}
             DATE({{ timezoneTuple[1] }})  {{ ", " if not loop.last else "" }}
     {%- endfor -%}
     )
@@ -18,18 +18,18 @@
                             , MINUTE), 1440.0)) AS INT64)
 
 Turns out this isn't acutally needed, because the install_age in UTC, that takes into account the first 24h would yield the same value in all timezones.
-  {{ overbase_firebase.generate_date_timezone_age_struct('TIMESTAMP_MICROS(event_timestamp)', 'TIMESTAMP_MICROS(user_first_touch_timestamp)') }} as install_ages 
+  {{ ta_firebase.generate_date_timezone_age_struct('TIMESTAMP_MICROS(event_timestamp)', 'TIMESTAMP_MICROS(user_first_touch_timestamp)') }} as install_ages 
 #}
 {%- macro generate_date_timezone_age_struct(tsField1, tsField2) -%}
     STRUCT<
-    {%- for timezoneTuple in overbase_firebase.generate_datetime_timezone_tuple(tsField1) -%}
+    {%- for timezoneTuple in ta_firebase.generate_datetime_timezone_tuple(tsField1) -%}
             {{ timezoneTuple[0] }} INT64 {{ ", " if not loop.last else "" }}
     {%- endfor -%}>(
-    {% set datetimesField1 = overbase_firebase.generate_datetime_timezone_tuple(tsField1) | map(attribute=1) | list %}
-    {%- set datetimesField2 = overbase_firebase.generate_datetime_timezone_tuple(tsField2) | map(attribute=1) | list %}
+    {% set datetimesField1 = ta_firebase.generate_datetime_timezone_tuple(tsField1) | map(attribute=1) | list %}
+    {%- set datetimesField2 = ta_firebase.generate_datetime_timezone_tuple(tsField2) | map(attribute=1) | list %}
     {%- set datetimeFields = zip(datetimesField1, datetimesField2) -%}
     {%- for datetimes in datetimeFields -%}
-        {{ overbase_firebase.calculate_age_between_datetimes(datetimes[0], datetimes[1])  }} {{ ", " if not loop.last else "" }}
+        {{ ta_firebase.calculate_age_between_datetimes(datetimes[0], datetimes[1])  }} {{ ", " if not loop.last else "" }}
     {%- endfor -%}
     )
 {% endmacro -%}

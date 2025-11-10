@@ -12,12 +12,12 @@
 
 SELECT *
 FROM {{ ref("fb_analytics_events") }}
-WHERE event_name IN ('ob_ui_view_shown', 'ob_ui_button_tapped', 'ui_view_shown', 'ui_button_tapped')
-AND {{ overbase_firebase.analyticsDateFilterFor('event_date') }}
+WHERE event_name IN ('ta_ui_view_show', 'ta_ui_button_tapped', 'ui_view_show', 'ui_button_tapped')
+AND {{ ta_firebase.analyticsDateFilterFor('event_date') }}
 
 UNION ALL 
 
 SELECT *
 FROM {{ ref("fb_analytics_events_forced_nulls") }}
-WHERE event_name IN ('ob_ui_view_shown', 'ob_ui_button_tapped', 'ui_view_shown', 'ui_button_tapped')
-AND {{ overbase_firebase.analyticsDateFilterFor('event_date') }}
+WHERE event_name IN ('ta_ui_view_show', 'ta_ui_button_tapped', 'ui_view_show', 'ui_button_tapped')
+AND {{ ta_firebase.analyticsDateFilterFor('event_date') }}

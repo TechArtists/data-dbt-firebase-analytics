@@ -6,14 +6,14 @@ WITH stg AS (
     project_id,
     SUM(duplicates_cnt) AS cnt
   FROM {{ ref('fb_analytics_events_raw') }}
-  WHERE {{ overbase_firebase.analyticsTestDateFilter('event_date', extend=2) }}
+  WHERE {{ ta_firebase.analyticsTestDateFilter('event_date', extend=2) }}
     AND event_date <= CURRENT_DATE() - 5
   GROUP BY 1, 2
 ),
 
 src AS (
-  {%- set projects = var('OVERBASE:SOURCES', []) -%}
-  {%- set ready    = var('OVERBASE:SOURCES_READY', false) -%}
+  {%- set projects = var('TA:SOURCES', []) -%}
+  {%- set ready    = var('TA:SOURCES_READY', false) -%}
   {%- set ns = namespace(first=true) -%}
 
   {%- if not ready -%}
@@ -23,8 +23,8 @@ src AS (
       -- use first project's id if available; otherwise literal 'fallback'
       {{ (projects[0]['project_id'] if projects and (projects[0] is mapping) and projects[0].get('project_id') else 'fallback') | tojson }} AS project_id
     FROM {{ source('firebase_analytics__fallback', 'events') }}
-    WHERE {{ overbase_firebase.analyticsTestTableSuffixFilter(extend=3) }}
-      AND {{ overbase_firebase.analyticsTestDateFilter('DATE(TIMESTAMP_MICROS(event_timestamp))', extend=2) }}
+    WHERE {{ ta_firebase.analyticsTestTableSuffixFilter(extend=3) }}
+      AND {{ ta_firebase.analyticsTestDateFilter('DATE(TIMESTAMP_MICROS(event_timestamp))', extend=2) }}
       AND DATE(TIMESTAMP_MICROS(event_timestamp)) <= CURRENT_DATE() - 5
     GROUP BY 1
 
@@ -55,8 +55,8 @@ src AS (
           COUNT(*) AS cnt,
           '{{ pid }}' AS project_id
         FROM {{ source('firebase_analytics__' ~ pid, 'events') }}
-        WHERE {{ overbase_firebase.analyticsTestTableSuffixFilter(extend=3) }}
-          AND {{ overbase_firebase.analyticsTestDateFilter('DATE(TIMESTAMP_MICROS(event_timestamp))', extend=2) }}
+        WHERE {{ ta_firebase.analyticsTestTableSuffixFilter(extend=3) }}
+          AND {{ ta_firebase.analyticsTestDateFilter('DATE(TIMESTAMP_MICROS(event_timestamp))', extend=2) }}
           AND DATE(TIMESTAMP_MICROS(event_timestamp)) <= CURRENT_DATE() - 5
         GROUP BY 1
 
@@ -70,8 +70,8 @@ src AS (
             COUNT(*) AS cnt,
             '{{ pid }}' AS project_id
           FROM {{ source('firebase_analytics__' ~ pid ~ '__' ~ ds, 'events') }}
-          WHERE {{ overbase_firebase.analyticsTestTableSuffixFilter(extend=3) }}
-            AND {{ overbase_firebase.analyticsTestDateFilter('DATE(TIMESTAMP_MICROS(event_timestamp))', extend=2) }}
+          WHERE {{ ta_firebase.analyticsTestTableSuffixFilter(extend=3) }}
+            AND {{ ta_firebase.analyticsTestDateFilter('DATE(TIMESTAMP_MICROS(event_timestamp))', extend=2) }}
             AND DATE(TIMESTAMP_MICROS(event_timestamp)) <= CURRENT_DATE() - 5
           GROUP BY 1
         {%- endfor -%}

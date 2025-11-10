@@ -16,7 +16,7 @@
             {%- set _ = result.append( (tablePrefix ~ columnName, aliasPrefix ~ columnName) ) -%}
         {%- else -%}
             {# remove the 'STRUCT<' prefix, then split by ' ' and get every other item, ie the mini column name  #}
-            {# STRUCT<ob_view_name_string STRING, ob_view_type_string STRING -> ["ob_view_name_string", "STRING", "ob_view_type_string", "STRING"] #}
+            {# STRUCT<ta_view_name_string STRING, ta_view_type_string STRING -> ["ta_view_name_string", "STRING", "ta_view_type_string", "STRING"] #}
             {%- for structMiniColumnTmp in column["data_type"][7:-1].split(' ')[::2] -%}
                 {%- set structMiniColumn = structMiniColumnTmp | replace('`', '') -%}
                 {%- if columnName ~ "." ~ structMiniColumn not in miniColumnsToIgnoreSet %}
@@ -43,7 +43,7 @@
     , app_version.normalized as app_version_normalized
 #}
 {%- macro unpack_columns_into_minicolumns(columns, miniColumnsToIgnore, miniColumnsToNil, tablePrefix, aliasPrefix) -%}
-    {%- set minicolumns = overbase_firebase.unpack_columns_into_minicolumns_array(columns, miniColumnsToIgnore, miniColumnsToNil, tablePrefix, aliasPrefix) -%}
+    {%- set minicolumns = ta_firebase.unpack_columns_into_minicolumns_array(columns, miniColumnsToIgnore, miniColumnsToNil, tablePrefix, aliasPrefix) -%}
     {%- for minicolumn in minicolumns -%}
                    {{ ", " if not loop.first else "" }} {{ minicolumn[0] ~ " AS " ~ minicolumn[1] }}
     {% endfor -%}
@@ -67,7 +67,7 @@ app_id
         {%- if not column.data_type.startswith('STRUCT') %}
             {{ ", " if not loop.first else "" }}{{ unpackedAliasPrefix ~ columnName }} AS {{ packedAliasPrefix ~ columnName }}
         {%- else -%}
-            {#- ['ob_view_name STRING',] -#}
+            {#- ['ta_view_name STRING',] -#}
             {%- set structDefinitionDDLs = [] %}
             {%- for structMiniColumnDDLTmp in column["data_type"][7:-1].split(',') -%}
                 {%- set structMiniColumnDDL = structMiniColumnDDLTmp | replace('`', '') -%}
