@@ -1,28 +1,88 @@
-{{ config(
-    severity =  'error'
-) }}
+{{ config(severity='error') }}
 
 WITH stg AS (
-SELECT event_date,project_id, SUM(duplicates_cnt) AS cnt FROM {{ ref('fb_analytics_events_raw') }} 
-WHERE {{ overbase_firebase.analyticsTestDateFilter('event_date',extend=2) }}
-and event_date <= current_date -5
-GROUP BY 1,2
-)
-, src AS (
+  SELECT
+    event_date,
+    project_id,
+    SUM(duplicates_cnt) AS cnt
+  FROM {{ ref('fb_analytics_events_raw') }}
+  WHERE {{ overbase_firebase.analyticsTestDateFilter('event_date', extend=2) }}
+    AND event_date <= CURRENT_DATE() - 5
+  GROUP BY 1, 2
+),
 
-{% set projects = var('OVERBASE:SOURCES', []) %}
+src AS (
+  {%- set projects = var('OVERBASE:SOURCES', []) -%}
+  {%- set ready    = var('OVERBASE:SOURCES_READY', false) -%}
+  {%- set ns = namespace(first=true) -%}
 
-{% for p in projects %}
-  {% if not loop.first %}UNION ALL{% endif %}
-    SELECT DATE(TIMESTAMP_MICROS(event_timestamp)) as event_date,COUNT(*) AS cnt,
-    '{{ p.project_id }}' as project_id,
-  from {{ source('firebase_analytics__' ~ p.project_id, 'events') }}
-  WHERE {{ overbase_firebase.analyticsTestTableSuffixFilter(extend = 3) }}
-  AND {{ overbase_firebase.analyticsTestDateFilter('DATE(TIMESTAMP_MICROS(event_timestamp))',extend=2) }}
-  AND DATE(TIMESTAMP_MICROS(event_timestamp)) <= current_date -5 --buffer because firebase keeps refreshing the recent partitions
-GROUP BY 1,2
-{% endfor %}
+  {%- if not ready -%}
+    SELECT
+      DATE(TIMESTAMP_MICROS(event_timestamp)) AS event_date,
+      COUNT(*) AS cnt,
+      -- use first project's id if available; otherwise literal 'fallback'
+      {{ (projects[0]['project_id'] if projects and (projects[0] is mapping) and projects[0].get('project_id') else 'fallback') | tojson }} AS project_id
+    FROM {{ source('firebase_analytics__fallback', 'events') }}
+    WHERE {{ overbase_firebase.analyticsTestTableSuffixFilter(extend=3) }}
+      AND {{ overbase_firebase.analyticsTestDateFilter('DATE(TIMESTAMP_MICROS(event_timestamp))', extend=2) }}
+      AND DATE(TIMESTAMP_MICROS(event_timestamp)) <= CURRENT_DATE() - 5
+    GROUP BY 1
+
+
+  {%- else -%}
+    {%- for p in projects -%}
+      {%- set pid = p.get('project_id') -%}
+      {%- if not pid %}{% continue %}{% endif -%}
+
+      {# Support either a single dataset_id or a list analytics_dataset_ids #}
+      {%- set ads_raw = p.get('analytics_dataset_ids')
+                         if p.get('analytics_dataset_ids') is not none
+                         else p.get('analytics_dataset_id') -%}
+      {%- if ads_raw is string -%}
+        {%- set ads_list = [ads_raw] -%}
+      {%- elif ads_raw is iterable -%}
+        {%- set ads_list = ads_raw -%}
+      {%- else -%}
+        {%- set ads_list = [] -%}
+      {%- endif -%}
+
+      {%- if ads_list | length == 0 -%}
+        {# Naming style: firebase_analytics__<pid> #}
+        {%- if not ns.first %}UNION ALL{% endif -%}
+        {%- set ns.first = false -%}
+        SELECT
+          DATE(TIMESTAMP_MICROS(event_timestamp)) AS event_date,
+          COUNT(*) AS cnt,
+          '{{ pid }}' AS project_id
+        FROM {{ source('firebase_analytics__' ~ pid, 'events') }}
+        WHERE {{ overbase_firebase.analyticsTestTableSuffixFilter(extend=3) }}
+          AND {{ overbase_firebase.analyticsTestDateFilter('DATE(TIMESTAMP_MICROS(event_timestamp))', extend=2) }}
+          AND DATE(TIMESTAMP_MICROS(event_timestamp)) <= CURRENT_DATE() - 5
+        GROUP BY 1
+
+      {%- else -%}
+        {# Naming style: firebase_analytics__<pid>__<dataset> for each dataset #}
+        {%- for ds in ads_list -%}
+          {%- if not ns.first %}UNION ALL{% endif -%}
+          {%- set ns.first = false -%}
+          SELECT
+            DATE(TIMESTAMP_MICROS(event_timestamp)) AS event_date,
+            COUNT(*) AS cnt,
+            '{{ pid }}' AS project_id
+          FROM {{ source('firebase_analytics__' ~ pid ~ '__' ~ ds, 'events') }}
+          WHERE {{ overbase_firebase.analyticsTestTableSuffixFilter(extend=3) }}
+            AND {{ overbase_firebase.analyticsTestDateFilter('DATE(TIMESTAMP_MICROS(event_timestamp))', extend=2) }}
+            AND DATE(TIMESTAMP_MICROS(event_timestamp)) <= CURRENT_DATE() - 5
+          GROUP BY 1
+        {%- endfor -%}
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endif -%}
 )
-select * from 
-stg left join src on stg.event_date = src.event_date and src.project_id=stg.project_id
-where stg.cnt <> src.cnt
+
+SELECT *
+FROM stg
+LEFT JOIN src
+  ON stg.event_date = src.event_date
+ AND stg.project_id = src.project_id
+WHERE stg.cnt <> src.cnt
