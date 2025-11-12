@@ -13,16 +13,15 @@ WITH stg AS (
 
 src AS (
   {%- set projects = var('TA:SOURCES', []) -%}
-  {%- set ready    = var('TA:SOURCES_READY', false) -%}
+  {%- set ready    = var('TA:SOURCES_MULTIPLE_PROJECTS_GENERATED', false) -%}
   {%- set ns = namespace(first=true) -%}
 
   {%- if not ready -%}
     SELECT
       DATE(TIMESTAMP_MICROS(event_timestamp)) AS event_date,
       COUNT(*) AS cnt,
-      -- use first project's id if available; otherwise literal 'fallback'
-      {{ (projects[0]['project_id'] if projects and (projects[0] is mapping) and projects[0].get('project_id') else 'fallback') | tojson }} AS project_id
-    FROM {{ source('firebase_analytics__fallback', 'events') }}
+      {{ (projects[0]['project_id'] if projects and (projects[0] is mapping) and projects[0].get('project_id') else 'single_project') | tojson }} AS project_id
+    FROM {{ source('firebase_analytics__single_project', 'events') }}
     WHERE {{ ta_firebase.analyticsTestTableSuffixFilter(extend=3) }}
       AND {{ ta_firebase.analyticsTestDateFilter('DATE(TIMESTAMP_MICROS(event_timestamp))', extend=2) }}
       AND DATE(TIMESTAMP_MICROS(event_timestamp)) <= CURRENT_DATE() - 5

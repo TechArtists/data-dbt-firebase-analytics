@@ -14,11 +14,11 @@
 -- https://firebase.google.com/docs/crashlytics/bigquery-export#without_stack_traces
 
 {% set projects = var('TA:SOURCES', []) %}
-{% set ready = var('TA:SOURCES_READY', false) %}
+{% set ready = var('TA:SOURCES_MULTIPLE_PROJECTS_GENERATED', false) %}
 
 {% set first = projects[0] if projects and (projects[0] is mapping) else {} %}
-{% set pid0 = first.get('project_id', 'fallback_project') %}
-{% set ds0  = first.get('crashlytics_dataset_id', 'fallback_crashlytics_dataset') %}
+{% set pid0 = first.get('project_id', 'single_project') %}
+{% set ds0  = first.get('crashlytics_dataset_id', 'single_project_crashlytics_dataset') %}
 
 {%- set ns = namespace(first=true) -%}
 
@@ -93,7 +93,7 @@
           ) AS unity_metadata
         , COUNT(1) OVER (PARTITION BY installation_uuid, event_id, variant_id) as duplicates_cnt
 
-    FROM {{ source('firebase_crashlytics__fallback', 'events') }}
+    FROM {{ source('firebase_crashlytics__single_project', 'events') }}
     WHERE {{ ta_firebase.crashlyticsTSFilterFor("event_timestamp") }}
     QUALIFY ROW_NUMBER() OVER (PARTITION BY crashlytics_user_pseudo_id, event_id, variant_id ORDER BY received_ts) = 1
 
