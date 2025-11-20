@@ -1,4 +1,4 @@
-{% macro generate_firebase_sources(
+{% macro generate_sources_multiple_projects(
     var_name='TA:SOURCES',
     source_prefix='firebase',
     indent=2,
