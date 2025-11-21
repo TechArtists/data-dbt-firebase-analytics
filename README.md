@@ -1,9 +1,5 @@
-Welcome to your new dbt project!
+This library works by default for one Firebase/Google Cloud Project:
 
-### Using the starter project
-
-
-This library works by default for one google cloud project:
 # "TA:SOURCES":
     #   - {project_id: google_cloud_project_id,
     #     analytics_dataset_id: schema_id,
