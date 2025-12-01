@@ -1,4 +1,4 @@
-This library works by default for one google cloud project:
+This library works by default for one Firebase/Google Cloud Project:
 # "TA:SOURCES":
     #   - {project_id: google_cloud_project_id,
     #     analytics_dataset_id: schema_id,
