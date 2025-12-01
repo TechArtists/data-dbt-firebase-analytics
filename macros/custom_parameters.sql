@@ -16,11 +16,11 @@
 
 {# Array of tuples [
 (key_name, ta_type, rollup_type, extract_transformation, metric_rollup_transformation, struct_field_name, event_name_filter, null_dimension_event_name_filter, bigquery_type, how_to_extract_from_unnest)] 
-    ('ta_view_name', 'STRING', 'dimension', 'STRING', 'ta_ui_view_shown', 'LOWER(value.string_value)', 'ta_view_name_string')
+    ('ta_view_name', 'STRING', 'dimension', 'STRING', 'ta_ui_view_show', 'LOWER(value.string_value)', 'ta_view_name_string')
 #}
 {% macro get_event_parameter_tuples_all() -%}
-    {# ta_ui_view_shown & ta_ui_button_tapped #}
-    {%- set uiEventNameFilters = ["ta_ui_view_shown", "ta_ui_button_tapped", "ui_view_shown", "ui_button_tapped"] -%}
+    {# ta_ui_view_show & ta_ui_button_tapped #}
+    {%- set uiEventNameFilters = ["ta_ui_view_show", "ta_ui_button_tapped", "ui_view_show", "ui_button_tapped"] -%}
     {%- set builtin_parameters = [ 
             {"key_name":"view_name", "data_type":"STRING", "rollup_type":"dimension", "event_name_filter": uiEventNameFilters, "extract_transformation": "LOWER(TRIM(##))"} 
            ,{"key_name":"view_type", "data_type":"STRING", "rollup_type":"alsoForceNullDimension", "force_null_dimension_event_name_filter": uiEventNameFilters,  "extract_transformation": "LOWER(TRIM(##))"}

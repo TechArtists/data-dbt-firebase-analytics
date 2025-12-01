@@ -33,7 +33,7 @@ seeds:
 vars: 
   ta_firebase:
     "TA:DONT_CARE": "MAKE_YAML_WORK" # optional
-    "TA:SOURCES_READY" : false
+    "TA:SOURCES_MULTIPLE_PROJECTS_GENERATED" : false
     # "TA:SOURCES":
     #   - {project_id: watermark-maker,
     #     analytics_dataset_id: analytics_150733022,

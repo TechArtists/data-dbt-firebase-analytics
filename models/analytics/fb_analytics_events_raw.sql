@@ -7,6 +7,7 @@
       "granularity": "day"
      },
      incremental_strategy = 'insert_overwrite',
+     lookback = 4
      require_partition_filter = true,
      cluster_by = ["event_name", "platform", "app_id"]
 ) }}
@@ -67,26 +68,26 @@ SELECT
 FROM 
 (
 {%- set projects = var('TA:SOURCES', []) -%}
-{%- set ready = var('TA:SOURCES_READY', false) -%}
+{%- set ready = var('TA:SOURCES_MULTIPLE_PROJECTS_GENERATED', false) -%}
 
  {%- set first = (projects[0] if projects and (projects[0] is mapping) else {}) -%}
-  {%- set pid0 = first.get('project_id', 'fallback_project') -%}
+  {%- set pid0 = first.get('project_id', 'single_project') -%}
   {%- set ads_raw0 = first.get('analytics_dataset_ids') if first.get('analytics_dataset_ids') is not none else first.get('analytics_dataset_id') -%}
   {%- if ads_raw0 is string -%}
     {%- set ds0 = ads_raw0 -%}
   {%- elif ads_raw0 is iterable and (ads_raw0 | length) > 0 -%}
     {%- set ds0 = ads_raw0[0] -%}
   {%- else -%}
-    {%- set ds0 = 'fallback_dataset' -%}
+    {%- set ds0 = 'single_project_dataset' -%}
   {%- endif -%}
 
  {%- if not ready -%}
-    -- FALLBACK: use the single parse-safe source until generated sources are ready
+    -- use the single project source if generated sources are not ready
     SELECT
       '{{ pid0 }}' as project_id,
       '{{ ds0 }}'  as dataset_id,
       *
-    FROM {{ source('firebase_analytics__fallback', 'events') }}
+    FROM {{ source('firebase_analytics__single_project', 'events') }}
     WHERE {{ ta_firebase.analyticsTableSuffixFilter() }}
     AND {{ ta_firebase.analyticsDateFilterFor('DATE(TIMESTAMP_MICROS(event_timestamp))') }}
  {%- else -%}
