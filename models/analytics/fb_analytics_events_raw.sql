@@ -7,7 +7,7 @@
       "granularity": "day"
      },
      incremental_strategy = 'insert_overwrite',
-     lookback = 4
+     lookback = 4,
      require_partition_filter = true,
      cluster_by = ["event_name", "platform", "app_id"]
 ) }}
