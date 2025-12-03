@@ -1,7 +1,7 @@
 version: 2
 
 models:
-  - name: fb_analytics_events_raw
+  - name: google_analytics_events_raw
     description: "Raw Firebase events that have been de-duplicated & with dimensions moved around "
     columns:
     - name: event_ts
