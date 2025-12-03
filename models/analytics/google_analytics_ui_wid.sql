@@ -12,13 +12,13 @@
 ) }}
 
 SELECT *
-FROM {{ ref("fb_analytics_events_wid") }}
+FROM {{ ref("google_analytics_events_wid") }}
 WHERE event_name IN ('ta_ui_view_show', 'ta_ui_button_tapped', 'ui_view_show', 'ui_button_tapped')
 AND {{ ta_firebase.analyticsDateFilterFor('event_date') }}
 
 UNION ALL 
 
 SELECT *
-FROM {{ ref("fb_analytics_events_wid_forced_nulls") }}
+FROM {{ ref("google_analytics_events_wid_forced_nulls") }}
 WHERE event_name IN ('ta_ui_view_show', 'ta_ui_button_tapped', 'ui_view_show', 'ui_button_tapped')
 AND {{ ta_firebase.analyticsDateFilterFor('event_date') }}

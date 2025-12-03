@@ -11,7 +11,7 @@
 
 
 SELECT *
-FROM {{ ref("fb_analytics_events") }}
+FROM {{ ref("google_analytics_events") }}
 WHERE True 
 AND  {{ ta_firebase.analyticsDateFilterFor('event_date') }}
 AND (event_name LIKE 'error_%' OR event_name LIKE 'ta_error_%')

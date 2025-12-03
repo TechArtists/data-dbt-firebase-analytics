@@ -19,7 +19,7 @@
 
 {%- set miniColumnsToIgnoreInGroupBy = ta_firebase.get_mini_columns_to_ignore_when_rolling_up() -%}
 
-{%- set tmp_res = ta_firebase.get_filtered_columns_for_table("fb_analytics_events_raw", columnNamesEventDimensions, miniColumnsToIgnoreInGroupBy) -%}
+{%- set tmp_res = ta_firebase.get_filtered_columns_for_table("google_analytics_events_raw", columnNamesEventDimensions, miniColumnsToIgnoreInGroupBy) -%}
 {%- set columnsForEventDimensions = tmp_res[0] -%}
 {%- set eventDimensionsUnnestedCount = tmp_res[1]  -%}
 
@@ -41,7 +41,7 @@ WITH data as (
             , COUNT(DISTINCT(user_pseudo_id)) as users
             {{ ", " if custom_summed_metrics|length > 0 else "" }} {{ custom_summed_metrics |map(attribute='agg')|join(", ") }}
 
-    FROM {{ ref("fb_analytics_events_raw") }}
+    FROM {{ ref("google_analytics_events_raw") }}
     WHERE {{ ta_firebase.analyticsDateFilterFor('event_date') }}
     GROUP BY 1,2 {% for n in range(3, 3 + eventDimensionsUnnestedCount) -%} ,{{ n }} {%- endfor %}
 )

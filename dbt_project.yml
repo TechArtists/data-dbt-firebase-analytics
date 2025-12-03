@@ -77,7 +77,7 @@ vars:
       # key_name: server_sent_ts
       # data_type: string
       # rollup_type: raw/dimension/alsoForceNullDimension/metric/metricOnly
-        # raw: it will just be extracted and kep in fb_analytics_events_raw. It won't be propagated upwards
+        # raw: it will just be extracted and kep in google_analytics_events_raw. It won't be propagated upwards
         # dimension: raw + it will propagated upwards as a dimension
         # alsoForceNullDimension: dimension + it will be also propagated in the "forced_nulls" table with this dimension set to NULL
         # metric: raw + it will be propagated upwards as a metric

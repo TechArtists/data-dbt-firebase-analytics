@@ -1,5 +1,5 @@
 models:
-  - name: fb_crashlytics_events_raw
+  - name: crashlytics_events_raw
     description: "Raw Crashltyics events that have been de-duplicated & with dimensions moved around "
     columns:
       - name: event_ts

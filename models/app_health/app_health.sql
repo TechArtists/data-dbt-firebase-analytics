@@ -73,7 +73,7 @@ WITH analytics AS (
            {{ "," if not loop.first else "" }} {{ dimAndAlias[0] }} AS {{ dimAndAlias[1] }}
            {% endfor -%}
           , {{ custom_summed_measures | selectattr("model", "equalto", "analytics") | map(attribute='agg')|join("\n          , ") }}
-    FROM {{ ref("fb_analytics_events") }}
+    FROM {{ ref("google_analytics_events") }}
     WHERE {{ ta_firebase.analyticsDateFilterFor('event_date') }}
     AND {{ ta_firebase.makeListIntoSQLInFilter("event_name", allAnalyticsEventNames| list) }}
     GROUP BY {{ range(1, 1 + commonDimensionsAndAliases | length) | list | join(",") }} 
@@ -85,7 +85,7 @@ WITH analytics AS (
           {%- for measure in  custom_summed_measures | selectattr("model", "equalto", "analytics_forced_nulls") | map(attribute='agg') %}
             , {{ measure }}
           {%- endfor %}
-    FROM {{ ref("fb_analytics_events_forced_nulls") }}
+    FROM {{ ref("google_analytics_events_forced_nulls") }}
     WHERE {{ ta_firebase.analyticsDateFilterFor('event_date') }}
     {% if allAnalyticsForcedNullEventNames | length == 0 -%}
     AND False
@@ -99,7 +99,7 @@ WITH analytics AS (
            {{ "," if not loop.first else "" }} {{ dimAndAlias[0] }} AS {{ dimAndAlias[1] }}
            {% endfor -%}
           , SUM(users) as users
-    FROM {{ ref("fb_analytics_installs") }}
+    FROM {{ ref("google_analytics_installs") }}
     WHERE {{ ta_firebase.analyticsDateFilterFor('event_date') }}
     GROUP BY {{ range(1, 1 + commonDimensionsAndAliases | length) | list | join(",") }} 
 )
@@ -108,7 +108,7 @@ WITH analytics AS (
            {{ "," if not loop.first else "" }} {{ dimAndAlias[0] }} AS {{ dimAndAlias[1] }}
            {% endfor -%}
             , {{ custom_summed_measures | selectattr("model", "equalto", "crashlytics") | map(attribute='agg')|join("\n          , ") }}
-    FROM {{ ref("fb_crashlytics_events") }}
+    FROM {{ ref("crashlytics_events") }}
     WHERE {{ ta_firebase.crashlyticsDateFilterFor('event_date') }}
     GROUP BY {{ range(1, 1 + commonDimensionsAndAliases | length) | list | join(",") }} 
 )
