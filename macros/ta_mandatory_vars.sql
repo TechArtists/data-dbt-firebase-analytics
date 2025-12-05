@@ -9,7 +9,7 @@
 
 {% macro verify_all_ta_mandatory_variables() -%}
 {{- ta_firebase.compile_time_mandatory_var("TA:SOURCES", "ta") -}}
-{{- ta_firebase.compile_time_mandatory_var("TA:SOURCES_READY", "firebase_analytics_raw_test") -}}
+{{- ta_firebase.compile_time_mandatory_var("TA:SOURCES_MULTIPLE_PROJECTS_GENERATED", "firebase_analytics_raw_test") -}}
 {{- ta_firebase.compile_time_mandatory_var("TA:FIREBASE_ANALYTICS_FULL_REFRESH_START_DATE", "2018-01-01") -}}
 {{- ta_firebase.compile_time_mandatory_var("TA:FIREBASE_CRASHLYTICS_FULL_REFRESH_START_DATE", "2018-01-01") -}}
 

@@ -109,8 +109,9 @@
 
             SELECT
                 '{{ pid }}' AS project_id,
-                '{{ ds }}'  AS dataset_id,
-                 DATE(event_timestamp) as event_date
+                '{{ ds }}'  AS dataset_id
+    , event_timestamp as event_ts
+    , DATE(event_timestamp) as event_date
     , received_timestamp as received_ts
     , installation_uuid as crashlytics_user_pseudo_id
     , (SELECT value FROM UNNEST(custom_keys) WHERE key = 'fb_user_pseudo_id') as firebase_analytics_user_pseudo_id

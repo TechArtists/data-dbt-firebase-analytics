@@ -46,7 +46,7 @@ vars:
     #     events_table: events_*,
     #     crashlytics_dataset_id: firebase_crashlytics,
     #     crashlytics_table: com_dave_logomaker_*}
-    
+    # "TA:SQLMESH_LOOKBACK"
     # don't define variables here, because if they aren't overwritten in the client yml, then they will resolve to "None". 
     # Instead, use them in the package where you need them with them with the appropriate default value
     # Furthermore, whatever we use in sources.yml, we can't define in this package's dbt_project.yml, or else they won't be able to be overwritten by the client
