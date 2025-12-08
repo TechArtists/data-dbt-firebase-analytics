@@ -13,7 +13,7 @@
 {%- set miniColumnsToIgnoreInGroupBy = miniColumnsToIgnoreInGroupBy + ta_firebase.list_map_and_add_prefix(timezones, 'event_dates.') + ta_firebase.list_map_and_add_prefix(timezones, 'install_dates.') -%}
 
 
-{%- set tmp_res = ta_firebase.get_filtered_columns_for_table("fb_analytics_events_raw", columnNamesEventDimensions, miniColumnsToIgnoreInGroupBy) -%}
+{%- set tmp_res = ta_firebase.get_filtered_columns_for_table("google_analytics_events_raw", columnNamesEventDimensions, miniColumnsToIgnoreInGroupBy) -%}
 {%- set columnsForEventDimensions = tmp_res[0] -%}
 
 
@@ -22,7 +22,7 @@
 
 WITH
 {%- for column in minicolumns -%}
-    {{ ", " if not loop.first else "" }} dim_{{loop.index}} AS ( SELECT COUNT(DISTINCT({{ column[0] }})) AS dist_cnt FROM  {{ ref("fb_analytics_events_raw") }} WHERE DATE(event_date) = '2023-10-10')
+    {{ ", " if not loop.first else "" }} dim_{{loop.index}} AS ( SELECT COUNT(DISTINCT({{ column[0] }})) AS dist_cnt FROM  {{ ref("google_analytics_events_raw") }} WHERE DATE(event_date) = '2023-10-10')
     {% set _ = unionAllSelects.append("SELECT '" ~ column[1]  ~ "' AS dim_name, dist_cnt FROM dim_" ~ loop.index) -%}
 {% endfor -%}
  

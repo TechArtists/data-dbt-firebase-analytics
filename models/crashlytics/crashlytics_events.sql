@@ -16,7 +16,7 @@
 ] -%}
 
 {%- set miniColumnsToIgnoreInGroupBy = [] -%}
-{%- set tmp_res = ta_firebase.get_filtered_columns_for_table("fb_crashlytics_events_raw", columnNamesEventDimensions, miniColumnsToIgnoreInGroupBy) -%}
+{%- set tmp_res = ta_firebase.get_filtered_columns_for_table("crashlytics_events_raw", columnNamesEventDimensions, miniColumnsToIgnoreInGroupBy) -%}
 {%- set columnsForEventDimensions = tmp_res[0] -%}
 {%- set eventDimensionsUnnestedCount = tmp_res[1]  -%}
  
@@ -25,7 +25,7 @@ WITH data as (
             , {{ ta_firebase.unpack_columns_into_minicolumns(columnsForEventDimensions, miniColumnsToIgnoreInGroupBy, [], "", "") }}
             , COUNT(1) as cnt -- same as COUNT(DISTINCT(event_id))
             , COUNT(DISTINCT(crashlytics_user_pseudo_id)) as users
-    FROM {{ ref("fb_crashlytics_events_raw") }}
+    FROM {{ ref("crashlytics_events_raw") }}
     WHERE {{ ta_firebase.analyticsDateFilterFor('event_date') }}
     GROUP BY 1 {% for n in range(2, 2 + eventDimensionsUnnestedCount) -%} ,{{ n }} {%- endfor %}
 )

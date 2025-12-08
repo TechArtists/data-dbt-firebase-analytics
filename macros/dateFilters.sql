@@ -1,6 +1,7 @@
 {%- macro analyticsDateFilterFor(dateField, extend = 0) -%}
   {%- if sqlmesh_incremental is defined -%}
-    {{ dateField }} BETWEEN '{{ start_ds }}' AND '{{ end_ds }}'
+    {%- set INCREMENTAL_DAYS =  var('TA:SQLMESH_LOOKBACK', 5 ) +extend  -%}
+    {{ dateField }} BETWEEN '{{ start_ds }}' - {{ INCREMENTAL_DAYS }} AND '{{ end_ds }}'
   {%- else -%}
     {%- set startEndTSTuple = ta_firebase.analyticsStartEndTimestampsTuple(extend = extend) -%}
     {{ dateField }} BETWEEN DATE({{ startEndTSTuple[0] }}) AND DATE({{ startEndTSTuple[1] }})
@@ -9,7 +10,8 @@
 
 {%- macro crashlyticsDateFilterFor(dateField, extend = 0) -%}
   {%- if sqlmesh_incremental is defined -%}
-    {{ dateField }} BETWEEN '{{ start_ds }}' AND '{{ end_ds }}'
+    {%- set INCREMENTAL_DAYS =  var('TA:SQLMESH_LOOKBACK', 5 ) +extend  -%}
+    {{ dateField }} BETWEEN '{{ start_ds }}' - {{ INCREMENTAL_DAYS }} AND '{{ end_ds }}'
   {%- else -%}
     {%- set startEndTSTuple = ta_firebase.crashlyticsStartEndTimestampsTuple(extend=extend) -%}
     {{ dateField }} BETWEEN DATE({{ startEndTSTuple[0] }}) AND DATE({{ startEndTSTuple[1] }})
@@ -18,7 +20,8 @@
 
 {%- macro analyticsTSFilterFor(tsField, extend = 0) -%}
   {%- if sqlmesh_incremental is defined -%}
-    {{ tsField }} BETWEEN '{{ start_ds }}' AND '{{ end_ds }}'
+    {%- set INCREMENTAL_DAYS =  var('TA:SQLMESH_LOOKBACK', 5 ) +extend  -%}
+    {{ tsField }} BETWEEN TIMESTAMP('{{ start_ds }}' - {{ INCREMENTAL_DAYS }}) AND TIMESTAMP('{{ end_ds }}')
   {%- else -%}
     {%- set startEndTSTuple = ta_firebase.analyticsStartEndTimestampsTuple(extend=extend) -%}
     {{ tsField }} BETWEEN {{ startEndTSTuple[0] }} AND {{ startEndTSTuple[1] }}
@@ -27,7 +30,8 @@
 
 {%- macro crashlyticsTSFilterFor(tsField, extend = 0) -%}
   {%- if sqlmesh_incremental is defined -%}
-    {{ tsField }}  BETWEEN '{{ start_ds }}' AND '{{ end_ds }}'
+    {%- set INCREMENTAL_DAYS =  var('TA:SQLMESH_LOOKBACK', 5 ) +extend  -%}
+    {{ tsField }}  BETWEEN TIMESTAMP('{{ start_ds }}' - {{ INCREMENTAL_DAYS }}) AND TIMESTAMP('{{ end_ds }}')
   {%- else -%}
     {%- set startEndTSTuple = ta_firebase.crashlyticsStartEndTimestampsTuple(extend=extend) -%}
     {{ tsField }} BETWEEN {{ startEndTSTuple[0] }} AND {{ startEndTSTuple[1] }}
@@ -36,8 +40,9 @@
 
 {%- macro analyticsTableSuffixFilter(extend = 0) -%}
   {%- if sqlmesh_incremental is defined -%}
+    {%- set INCREMENTAL_DAYS =  var('TA:SQLMESH_LOOKBACK', 5 ) +extend  -%}
     REPLACE(_TABLE_SUFFIX, 'intraday_', '')
-      BETWEEN FORMAT_DATE('%Y%m%d', '{{ start_ds }}' -1)
+      BETWEEN FORMAT_DATE('%Y%m%d', '{{ start_ds }}' -1 - {{ INCREMENTAL_DAYS }} )
           AND FORMAT_DATE('%Y%m%d', '{{ end_ds }}')
   {%- else -%}
     {%- set startEndTSTuple = ta_firebase.analyticsStartEndTimestampsTuple(extend=extend + 1) -%}

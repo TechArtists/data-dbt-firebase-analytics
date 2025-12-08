@@ -5,7 +5,7 @@ WITH stg AS (
     event_date,
     project_id,
     SUM(duplicates_cnt) AS cnt
-  FROM {{ ref('fb_analytics_events_raw') }}
+  FROM {{ ref('google_analytics_events_raw') }}
   WHERE {{ ta_firebase.analyticsTestDateFilter('event_date', extend=2) }}
     AND event_date <= CURRENT_DATE() - 5
   GROUP BY 1, 2
@@ -47,7 +47,7 @@ src AS (
 
       {%- if ads_list | length == 0 -%}
         {# Naming style: firebase_analytics__<pid> #}
-        {%- if not ns.first %}UNION ALL{% endif -%}
+        {% if not ns.first %} UNION ALL {% endif %}
         {%- set ns.first = false -%}
         SELECT
           DATE(TIMESTAMP_MICROS(event_timestamp)) AS event_date,
@@ -62,7 +62,7 @@ src AS (
       {%- else -%}
         {# Naming style: firebase_analytics__<pid>__<dataset> for each dataset #}
         {%- for ds in ads_list -%}
-          {%- if not ns.first %}UNION ALL{% endif -%}
+          {% if not ns.first %} UNION ALL {% endif %}
           {%- set ns.first = false -%}
           SELECT
             DATE(TIMESTAMP_MICROS(event_timestamp)) AS event_date,
