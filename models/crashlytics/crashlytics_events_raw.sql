@@ -178,9 +178,9 @@
 
             FROM {{ source('firebase_crashlytics__' ~ pid, 'events') }}
             WHERE {{ ta_firebase.crashlyticsTSFilterFor("event_timestamp") }}
-
+        QUALIFY ROW_NUMBER() OVER (PARTITION BY crashlytics_user_pseudo_id, event_id, variant_id ORDER BY received_ts) = 1
         {% endif %}
-    QUALIFY ROW_NUMBER() OVER (PARTITION BY crashlytics_user_pseudo_id, event_id, variant_id ORDER BY received_ts) = 1
+    
     {% endfor %}
 {% endif %}
 )
