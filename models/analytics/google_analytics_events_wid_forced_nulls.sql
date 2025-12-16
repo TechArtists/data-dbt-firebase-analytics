@@ -7,17 +7,17 @@
      },
     incremental_strategy = 'insert_overwrite',
     require_partition_filter = true,
-    cluster_by = ["event_name", "platform", "app_id"]
+    cluster_by = ["event_name", "platform", "bundle_id"]
 
 ) }}
 
 
-{%- set columnNamesEventDimensions = ["app_id", "reverse_app_id","event_name", "platform", "appstore", "app_version", "platform_version",
+{%- set columnNamesEventDimensions = ["bundle_id", "reverse_bundle_id","event_name", "platform", "appstore", "app_version", "platform_version",
                                 "user_properties", "event_parameters",
                                 "geo", "device_hardware", "device_language", "device_time_zone_offset",
                                 "traffic_source"
 ] -%}
-{%- set columnNamesInstallDimensions = ["app_id", "reverse_app_id", "event_name", "platform", "appstore", "app_version", "platform_version",
+{%- set columnNamesInstallDimensions = ["bundle_id", "reverse_bundle_id", "event_name", "platform", "appstore", "app_version", "platform_version",
                                 "user_properties", "event_parameters",
                                 "geo", "device_hardware", "device_language", "device_time_zone_offset",
                                 "traffic_source"
@@ -32,7 +32,7 @@
 {%- set tmp_res = ta_firebase.get_filtered_columns_for_table("google_analytics_installs_raw", columnNamesInstallDimensions, miniColumnsToIgnoreInGroupBy) -%}
 {%- set columnsForInstallDimensions = tmp_res[0] -%}
 {%- set installDimensionsUnnestedCount = tmp_res[1]  -%}
-{# do these separaetely, so we don't end up with install_installed_dates #}
+-- {# do these separaetely, so we don't end up with install_installed_dates #}
 {%- set tmp_res = ta_firebase.get_filtered_columns_for_table("google_analytics_installs_raw", ["installed_dates"], miniColumnsToIgnoreInGroupBy) -%}
 {%- set columnsForInstalledDatesDimension = tmp_res[0] -%}
 {%- set installedDatesDimensionsUnnestedCount = tmp_res[1]  -%}
@@ -50,6 +50,8 @@
 {%- set miniColumnsToAlsoNil = ta_firebase.get_mini_columns_to_also_force_null_when_rolling_up() -%}
 WITH data as (
     SELECT    DATE(events.event_ts) as event_date
+            , project_id
+            , dataset_id
             , {{ ta_firebase.unpack_columns_into_minicolumns(columnsForEventDimensions, miniColumnsToIgnoreInGroupBy, miniColumnsToAlsoNil ,"events.", "event_") }}
             , DATE(installs.install_ts) as install_date
             , events.install_age as install_age
@@ -66,11 +68,13 @@ WITH data as (
     AND {{ ta_firebase.makeListIntoSQLInFilter("events.event_name", eventNamesToLookFor| list) }}
     AND installs.event_date >= '2020-01-01'
     -- TODO: max join on installs ?
-    GROUP BY 1,2,3,4 {% for n in range(5, 5 + eventDimensionsUnnestedCount + installedDatesDimensionsUnnestedCount + installDimensionsUnnestedCount) -%} ,{{ n }} {%- endfor %}
+    GROUP BY 1,2,3,4,5,6 {% for n in range(7, 7 + eventDimensionsUnnestedCount + installedDatesDimensionsUnnestedCount + installDimensionsUnnestedCount) -%} ,{{ n }} {%- endfor %}
 )
 
 
 SELECT event_date
+        , project_id
+        , dataset_id
         , {{ ta_firebase.pack_minicolumns_into_structs_for_select(columnsForEventDimensions, miniColumnsToIgnoreInGroupBy, "event_", "") }}
         , install_age
         , install_date

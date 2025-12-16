@@ -33,8 +33,8 @@
     , installation_uuid as crashlytics_user_pseudo_id
     , (SELECT value FROM UNNEST(custom_keys) WHERE key = 'fb_user_pseudo_id') as firebase_analytics_user_pseudo_id
     , COALESCE(user.id, (SELECT value FROM UNNEST(custom_keys) WHERE key = 'app_user_id')) as user_id
-    , bundle_identifier as app_id
-    , ARRAY_TO_STRING(ARRAY_REVERSE(SPLIT(bundle_identifier, '.')), '.') as reverse_app_id
+    , bundle_identifier as bundle_id
+    , ARRAY_TO_STRING(ARRAY_REVERSE(SPLIT(bundle_identifier, '.')), '.') as reverse_bundle_id
     , event_id
          -- the platform we get in operating_system.type is not populated for Android, only for iOS. So rely on _TABLE_SUFFIX instead
     , CASE WHEN _TABLE_SUFFIX LIKE '%ANDROID%' THEN'ANDROID'

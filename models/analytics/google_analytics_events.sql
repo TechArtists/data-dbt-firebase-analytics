@@ -7,11 +7,11 @@
      },
     incremental_strategy = 'insert_overwrite',
     require_partition_filter = true,
-    cluster_by = ["event_name", "platform", "app_id"]
+    cluster_by = ["event_name", "platform", "bundle_id"]
 ) }}
 
 
-{%- set columnNamesEventDimensions = ["app_id", "reverse_app_id", "event_name", "platform", "appstore", "app_version", "platform_version",
+{%- set columnNamesEventDimensions = ["bundle_id", "reverse_bundle_id", "event_name", "platform", "appstore", "app_version", "platform_version",
                                 "user_properties", "event_parameters",
                                 "geo", "device_hardware", "device_language", "device_time_zone_offset",
                                 "traffic_source"
@@ -35,6 +35,8 @@
 
 WITH data as (
     SELECT    DATE(event_ts) as event_date
+            , project_id
+            , dataset_id
             , {{ ta_firebase.install_age_group("install_age") }} AS install_age_group
             , {{ ta_firebase.unpack_columns_into_minicolumns(columnsForEventDimensions, miniColumnsToIgnoreInGroupBy, miniColumnsToAlsoNil, "", "") }}
             , COUNT(1) as cnt
@@ -43,9 +45,11 @@ WITH data as (
 
     FROM {{ ref("google_analytics_events_raw") }}
     WHERE {{ ta_firebase.analyticsDateFilterFor('event_date') }}
-    GROUP BY 1,2 {% for n in range(3, 3 + eventDimensionsUnnestedCount) -%} ,{{ n }} {%- endfor %}
+    GROUP BY 1,2,3,4 {% for n in range(5, 5 + eventDimensionsUnnestedCount) -%} ,{{ n }} {%- endfor %}
 )
 SELECT event_date
+        , project_id,
+        , dataset_id
         , install_age_group
         , {{ ta_firebase.pack_minicolumns_into_structs_for_select(columnsForEventDimensions, miniColumnsToIgnoreInGroupBy, "", "") }}
         , cnt
