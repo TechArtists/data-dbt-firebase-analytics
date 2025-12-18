@@ -13,8 +13,8 @@
 
 SELECT
     event_date
-    project_id,
-    dataset_id,
+    ,project_id
+    ,dataset_id
     ,platform
     ,user_id
     ,sum(if(event_name = 'user_engagement',1,0)) as user_engagement

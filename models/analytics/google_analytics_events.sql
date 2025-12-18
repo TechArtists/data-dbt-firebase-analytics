@@ -48,7 +48,7 @@ WITH data as (
     GROUP BY 1,2,3,4 {% for n in range(5, 5 + eventDimensionsUnnestedCount) -%} ,{{ n }} {%- endfor %}
 )
 SELECT event_date
-        , project_id,
+        , project_id
         , dataset_id
         , install_age_group
         , {{ ta_firebase.pack_minicolumns_into_structs_for_select(columnsForEventDimensions, miniColumnsToIgnoreInGroupBy, "", "") }}
