@@ -53,8 +53,8 @@ SELECT
         ) AS device_language
         , IF(device.time_zone_offset_seconds >= 0,'+', '-') || LEFT(CAST(TIME(TIMESTAMP_SECONDS(ABS(device.time_zone_offset_seconds))) AS STRING),5) 
             AS device_time_zone_offset
-        , STRUCT<name STRING, medium STRING, source STRING, manual_campaign_id STRING, manual_campaign_name STRING, manual_source STRING, manual_medium STRING, manual_term STRING, manual_content STRING, manual_source_platform STRING, manual_creative_format STRING, manual_marketing_tactic STRING, >(
-            traffic_source.name, traffic_source.medium, traffic_source.source, collected_traffic_source.manual_campaign_id, collected_traffic_source.manual_source, collected_traffic_source.manual_medium, collected_traffic_source.manual_term, collected_traffic_source.manual_content, collected_traffic_source.manual_source_platform, collected_traffic_source.manual_creative_format, collected_traffic_source.manual_marketing_tactic
+        , STRUCT<name STRING, medium STRING, source STRING, manual_campaign_id STRING, manual_campaign_name STRING, manual_source STRING, manual_medium STRING, manual_term STRING, manual_content STRING, manual_source_platform STRING, manual_creative_format STRING, manual_marketing_tactic STRING >(
+            traffic_source.name, traffic_source.medium, traffic_source.source, collected_traffic_source.manual_campaign_id, collected_traffic_source.manual_campaign_name, collected_traffic_source.manual_source, collected_traffic_source.manual_medium, collected_traffic_source.manual_term, collected_traffic_source.manual_content, collected_traffic_source.manual_source_platform, collected_traffic_source.manual_creative_format, collected_traffic_source.manual_marketing_tactic
         ) AS traffic_source
         , STRUCT<revenue FLOAT64, currency STRING>(
             user_ltv.revenue, user_ltv.currency
