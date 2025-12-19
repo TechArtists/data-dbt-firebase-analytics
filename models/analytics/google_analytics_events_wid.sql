@@ -32,7 +32,7 @@
 {%- set tmp_res = ta_firebase.get_filtered_columns_for_table("google_analytics_installs_raw", columnNamesInstallDimensions, miniColumnsToIgnoreInGroupBy) -%}
 {%- set columnsForInstallDimensions = tmp_res[0] -%}
 {%- set installDimensionsUnnestedCount = tmp_res[1]  -%}
--- {# do these separaetely, so we don't end up with install_installed_dates #}
+{# do these separaetely, so we don't end up with install_installed_dates #}
 {%- set tmp_res = ta_firebase.get_filtered_columns_for_table("google_analytics_installs_raw", ["installed_dates"], miniColumnsToIgnoreInGroupBy) -%}
 {%- set columnsForInstalledDatesDimension = tmp_res[0] -%}
 {%- set installedDatesDimensionsUnnestedCount = tmp_res[1]  -%}
@@ -49,8 +49,8 @@
 {%- set miniColumnsToAlsoNil = [] -%}
 WITH data as (
     SELECT    DATE(events.event_ts) as event_date
-            , project_id
-            , dataset_id
+            , events.project_id
+            , events.dataset_id
             , {{ ta_firebase.unpack_columns_into_minicolumns(columnsForEventDimensions, miniColumnsToIgnoreInGroupBy, miniColumnsToAlsoNil ,"events.", "event_") }}
             , DATE(installs.install_ts) as install_date
             , events.install_age as install_age
