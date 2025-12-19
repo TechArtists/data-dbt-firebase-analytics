@@ -61,7 +61,7 @@
     {%- endfor -%}
 {%- endfor -%}
 
-{%- set commonDimensions = ["event_date","platform","bundle_id","reverse_bundle_id",
+{%- set commonDimensions = ["event_date","project_id","dataset_id","platform","bundle_id","reverse_bundle_id",
                             "app_version.join_value","platform_version.join_value",
                             "device_hardware.type","device_hardware.manufacturer","device_hardware.os_model"] -%}
 
@@ -133,6 +133,8 @@ WITH analytics AS (
            {% endfor %}
 )
 SELECT  event_date
+      , project_id
+      , dataset_id
       , platform 
       , bundle_id
       , reverse_bundle_id
