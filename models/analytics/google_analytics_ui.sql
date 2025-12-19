@@ -7,7 +7,7 @@
      },
     incremental_strategy = 'insert_overwrite',
     require_partition_filter = true,
-    cluster_by = ["event_name", "platform", "app_id"]
+    cluster_by = ["event_name", "platform", "bundle_id"]
 ) }}
 
 SELECT *

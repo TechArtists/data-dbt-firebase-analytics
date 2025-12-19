@@ -12,9 +12,9 @@ models:
         description: "`fb_user_pseudo_id` custom key set in Firebase Crashlytics (by the TA SDK)"
       - name: user_id
         description: "`app_user_id` custom key set in Firebase Crashlytics (by the TA SDK)"
-      - name: app_id
+      - name: bundle_id
         description: "iOS: bundle_identifier, Android: package_name"
-      - name: reverse_app_id
+      - name: reverse_bundle_id
         description: "iOS: bundle_identifier, Android: package_name in reversed format. So 'com.ta.myapp' becomes 'myapp.ta.com'"
       - name: event_id
         description: ""

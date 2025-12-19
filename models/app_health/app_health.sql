@@ -61,7 +61,7 @@
     {%- endfor -%}
 {%- endfor -%}
 
-{%- set commonDimensions = ["event_date","platform","app_id","reverse_app_id",
+{%- set commonDimensions = ["event_date","platform","bundle_id","reverse_bundle_id",
                             "app_version.join_value","platform_version.join_value",
                             "device_hardware.type","device_hardware.manufacturer","device_hardware.os_model"] -%}
 
@@ -134,8 +134,8 @@ WITH analytics AS (
 )
 SELECT  event_date
       , platform 
-      , app_id
-      , reverse_app_id
+      , bundle_id
+      , reverse_bundle_id
       , {{ ta_firebase.get_version_record_from_normalized('app_version_join_value') }} AS app_version
       , {{ ta_firebase.get_version_record_from_normalized('platform_version_join_value') }} AS platform_version
       , STRUCT<type STRING, manufacturer STRING, os_model STRING>(

@@ -9,7 +9,7 @@
      incremental_strategy = 'insert_overwrite',
      lookback = 4,
      require_partition_filter = true,
-     cluster_by = ["event_name", "platform", "app_id"]
+     cluster_by = ["event_name", "platform", "bundle_id"]
 ) }}
 
 -- https://support.google.com/firebase/answer/7029846
@@ -22,8 +22,8 @@ SELECT
         , {{ ta_firebase.calculate_age_between_timestamps("TIMESTAMP_MICROS(event_timestamp)", "TIMESTAMP_MICROS(user_first_touch_timestamp)") }} as install_age
         , LOWER(user_pseudo_id) as user_pseudo_id
         , LOWER(user_id) as user_id
-        , app_info.id as app_id
-        , ARRAY_TO_STRING(ARRAY_REVERSE(SPLIT(app_info.id, '.')), '.') as reverse_app_id
+        , app_info.id as bundle_id
+        , ARRAY_TO_STRING(ARRAY_REVERSE(SPLIT(app_info.id, '.')), '.') as reverse_bundle_id
         , event_name
         , {{ var( 'TA:CUSTOM_PLATFORM_PREPROCESSOR', 'platform') }} as platform
         , app_info.install_source as appstore
@@ -53,8 +53,8 @@ SELECT
         ) AS device_language
         , IF(device.time_zone_offset_seconds >= 0,'+', '-') || LEFT(CAST(TIME(TIMESTAMP_SECONDS(ABS(device.time_zone_offset_seconds))) AS STRING),5) 
             AS device_time_zone_offset
-        , STRUCT<name STRING, medium STRING, source STRING>(
-            traffic_source.name, traffic_source.medium, traffic_source.source
+        , STRUCT<name STRING, medium STRING, source STRING, manual_campaign_id STRING, manual_campaign_name STRING, manual_source STRING, manual_medium STRING, manual_term STRING, manual_content STRING, manual_source_platform STRING, manual_creative_format STRING, manual_marketing_tactic STRING >(
+            traffic_source.name, traffic_source.medium, traffic_source.source, collected_traffic_source.manual_campaign_id, collected_traffic_source.manual_campaign_name, collected_traffic_source.manual_source, collected_traffic_source.manual_medium, collected_traffic_source.manual_term, collected_traffic_source.manual_content, collected_traffic_source.manual_source_platform, collected_traffic_source.manual_creative_format, collected_traffic_source.manual_marketing_tactic
         ) AS traffic_source
         , STRUCT<revenue FLOAT64, currency STRING>(
             user_ltv.revenue, user_ltv.currency
@@ -121,7 +121,7 @@ FROM
 {%- endif -%}
 ) as events
 LEFT JOIN {{ref('ta_iso_country')}} as country_codes
-    ON LOWER(events.geo.country) = LOWER(country_codes.firebase_name)
+    ON LOWER(events.geo.country) = LOWER(COALESCE(country_codes.firebase_name,country_codes.name))
 LEFT JOIN {{ref("ta_iso_language")}} as language_codes
     ON LOWER(SPLIT(events.device.language,'-')[SAFE_OFFSET(0)]) = language_codes.alpha_2
 LEFT JOIN {{ref('ta_iso_country')}} as language_region_codes -- some language have 3 parts (e.g. zh-hans-us), so just get the last one

@@ -7,17 +7,17 @@
      },
     incremental_strategy = 'insert_overwrite',
     require_partition_filter = true,
-    cluster_by = ["event_name", "platform", "app_id"]
+    cluster_by = ["event_name", "platform", "bundle_id"]
 
 ) }}
 
 
-{%- set columnNamesEventDimensions = ["app_id", "reverse_app_id","event_name", "platform", "appstore", "app_version", "platform_version",
+{%- set columnNamesEventDimensions = ["bundle_id", "reverse_bundle_id","event_name", "platform", "appstore", "app_version", "platform_version",
                                 "user_properties", "event_parameters",
                                 "geo", "device_hardware", "device_language", "device_time_zone_offset",
                                 "traffic_source"
 ] -%}
-{%- set columnNamesInstallDimensions = ["app_id", "reverse_app_id", "event_name", "platform", "appstore", "app_version", "platform_version",
+{%- set columnNamesInstallDimensions = ["bundle_id", "reverse_bundle_id", "event_name", "platform", "appstore", "app_version", "platform_version",
                                 "user_properties", "event_parameters",
                                 "geo", "device_hardware", "device_language", "device_time_zone_offset",
                                 "traffic_source"
@@ -49,6 +49,8 @@
 {%- set miniColumnsToAlsoNil = [] -%}
 WITH data as (
     SELECT    DATE(events.event_ts) as event_date
+            , events.project_id
+            , events.dataset_id
             , {{ ta_firebase.unpack_columns_into_minicolumns(columnsForEventDimensions, miniColumnsToIgnoreInGroupBy, miniColumnsToAlsoNil ,"events.", "event_") }}
             , DATE(installs.install_ts) as install_date
             , events.install_age as install_age
@@ -64,11 +66,13 @@ WITH data as (
     AND installs.event_date >= '2020-01-01'
     -- TODO: max join on installs ? Have an LTV_MAX variable (e.g. 2 years)
     -- and then join on installs via installs > EVENT_DATE - 2 years?
-    GROUP BY 1,2,3,4 {% for n in range(5, 5 + eventDimensionsUnnestedCount + installedDatesDimensionsUnnestedCount + installDimensionsUnnestedCount) -%} ,{{ n }} {%- endfor %}
+    GROUP BY 1,2,3,4,5,6 {% for n in range(7, 7 + eventDimensionsUnnestedCount + installedDatesDimensionsUnnestedCount + installDimensionsUnnestedCount) -%} ,{{ n }} {%- endfor %}
 )
 
 
 SELECT event_date
+        , project_id
+        , dataset_id
         , {{ ta_firebase.pack_minicolumns_into_structs_for_select(columnsForEventDimensions, miniColumnsToIgnoreInGroupBy, "event_", "") }}
         , install_age
         , install_date

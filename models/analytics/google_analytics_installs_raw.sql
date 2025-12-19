@@ -7,7 +7,7 @@
      },
     incremental_strategy = 'insert_overwrite',
     require_partition_filter = true,
-    cluster_by = ["platform", "app_id"],
+    cluster_by = ["platform", "bundle_id"],
 ) }}
     -- incremental_strategy='insert_overwrite',
     -- require_partition_filter = false
