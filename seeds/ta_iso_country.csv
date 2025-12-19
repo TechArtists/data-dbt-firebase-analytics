@@ -1,7 +1,7 @@
 firebase_name,name,alpha_2,alpha_3,numeric
 Afghanistan,Afghanistan,af,afg,4
 Albania,Albania,al,alb,8
-,Algeria,dz,dza,12
+Algeria,Algeria,dz,dza,12
 American Samoa,American Samoa,as,asm,16
 ,Andorra,ad,and,20
 Angola,Angola,ao,ago,24
@@ -15,30 +15,30 @@ Australia,Australia,au,aus,36
 Austria,Austria,at,aut,40
 Azerbaijan,Azerbaijan,az,aze,31
 Bahamas,Bahamas (the),bs,bhs,44
-,Bahrain,bh,bhr,48
+Bahrain,Bahrain,bh,bhr,48
 Bangladesh,Bangladesh,bd,bgd,50
 Barbados,Barbados,bb,brb,52
 Belarus,Belarus,by,blr,112
 Belgium,Belgium,be,bel,56
 ,Belize,bz,blz,84
-,Bermuda,bm,bmu,60
+Bermuda,Bermuda,bm,bmu,60
 Bhutan,Bhutan,bt,btn,64
-,Bolivia (Plurinational State of),bo,bol,68
+Bolivia,Bolivia (Plurinational State of),bo,bol,68
 ,"Bonaire, Sint Eustatius and Saba",bq,bes,535
 Bosnia & Herzegovina,Bosnia and Herzegovina,ba,bih,70
-,Botswana,bw,bwa,72
+Botswana,Botswana,bw,bwa,72
 ,Bouvet Island,bv,bvt,74
 Brazil,Brazil,br,bra,76
 ,British Indian Ocean Territory (the),io,iot,86
-,Brunei Darussalam,bn,brn,96
+Brunei,Brunei Darussalam,bn,brn,96
 Bulgaria,Bulgaria,bg,bgr,100
-,Burkina Faso,bf,bfa,854
+Burkina Faso,Burkina Faso,bf,bfa,854
 Burundi,Burundi,bi,bdi,108
 ,Cabo Verde,cv,cpv,132
-,Cambodia,kh,khm,116
+Cambodia,Cambodia,kh,khm,116
 Cameroon,Cameroon,cm,cmr,120
 Canada,Canada,ca,can,124
-,Cayman Islands (the),ky,cym,136
+Cayman Islands,Cayman Islands (the),ky,cym,136
 ,Central African Republic (the),cf,caf,140
 ,Chad,td,tcd,148
 Chile,Chile,cl,chl,152
@@ -67,14 +67,14 @@ El Salvador,El Salvador,sv,slv,222
 ,Equatorial Guinea,gq,gnq,226
 ,Eritrea,er,eri,232
 Estonia,Estonia,ee,est,233
-,Eswatini,sz,swz,748
+Eswatini,Eswatini,sz,swz,748
 Ethiopia,Ethiopia,et,eth,231
-,Falkland Islands (the) [Malvinas],fk,flk,238
+Falkland Islands (Islas Malvinas),Falkland Islands (the) [Malvinas],fk,flk,238
 ,Faroe Islands (the),fo,fro,234
 ,Fiji,fj,fji,242
-,Finland,fi,fin,246
+Finland,Finland,fi,fin,246
 France,France,fr,fra,250
-,French Guiana,gf,guf,254
+French Guiana,French Guiana,gf,guf,254
 French Polynesia,French Polynesia,pf,pyf,258
 ,French Southern Territories (the),tf,atf,260
 Gabon,Gabon,ga,gab,266
@@ -85,11 +85,11 @@ Ghana,Ghana,gh,gha,288
 ,Gibraltar,gi,gib,292
 Greece,Greece,gr,grc,300
 ,Greenland,gl,grl,304
-,Grenada,gd,grd,308
+Grenada,Grenada,gd,grd,308
 ,Guadeloupe,gp,glp,312
 Guam,Guam,gu,gum,316
-,Guatemala,gt,gtm,320
-,Guernsey,gg,ggy,831
+Guatemala,Guatemala,gt,gtm,320
+Guernsey,Guernsey,gg,ggy,831
 Guinea,Guinea,gn,gin,324
 ,Guinea-Bissau,gw,gnb,624
 Guyana,Guyana,gy,guy,328
@@ -105,12 +105,12 @@ Indonesia,Indonesia,id,idn,360
 Iran,Iran (Islamic Republic of),ir,irn,364
 Iraq,Iraq,iq,irq,368
 Ireland,Ireland,ie,irl,372
-,Isle of Man,im,imn,833
+Isle of Man,Isle of Man,im,imn,833
 Israel,Israel,il,isr,376
 Italy,Italy,it,ita,380
 Jamaica,Jamaica,jm,jam,388
 Japan,Japan,jp,jpn,392
-,Jersey,je,jey,832
+Jersey,Jersey,je,jey,832
 Jordan,Jordan,jo,jor,400
 Kazakhstan,Kazakhstan,kz,kaz,398
 Kenya,Kenya,ke,ken,404
@@ -118,41 +118,41 @@ Kenya,Kenya,ke,ken,404
 ,Korea (the Democratic People's Republic of),kp,prk,408
 South Korea,Korea (the Republic of),kr,kor,410
 Kuwait,Kuwait,kw,kwt,414
-,Kyrgyzstan,kg,kgz,417
+Kyrgyzstan,Kyrgyzstan,kg,kgz,417
 ,Lao People's Democratic Republic (the),la,lao,418
-,Latvia,lv,lva,428
+Latvia,Latvia,lv,lva,428
 Lebanon,Lebanon,lb,lbn,422
-,Lesotho,ls,lso,426
-,Liberia,lr,lbr,430
+Lesotho,Lesotho,ls,lso,426
+Liberia,Liberia,lr,lbr,430
 Libya,Libya,ly,lby,434
-,Liechtenstein,li,lie,438
-,Lithuania,lt,ltu,440
+Liechtenstein,Liechtenstein,li,lie,438
+Lithuania,Lithuania,lt,ltu,440
 Luxembourg,Luxembourg,lu,lux,442
-,Macao,mo,mac,446
-,Madagascar,mg,mdg,450
-,Malawi,mw,mwi,454
+Macao,Macao,mo,mac,446
+Madagascar,Madagascar,mg,mdg,450
+Malawi,Malawi,mw,mwi,454
 Malaysia,Malaysia,my,mys,458
 Maldives,Maldives,mv,mdv,462
 Mali,Mali,ml,mli,466
-,Malta,mt,mlt,470
+Malta,Malta,mt,mlt,470
 ,Marshall Islands (the),mh,mhl,584
 ,Martinique,mq,mtq,474
 ,Mauritania,mr,mrt,478
-,Mauritius,mu,mus,480
+Mauritius,Mauritius,mu,mus,480
 ,Mayotte,yt,myt,175
 Mexico,Mexico,mx,mex,484
 ,Micronesia (Federated States of),fm,fsm,583
-,Moldova (the Republic of),md,mda,498
+Moldova,Moldova (the Republic of),md,mda,498
 ,Monaco,mc,mco,492
-,Mongolia,mn,mng,496
+Mongolia,Mongolia,mn,mng,496
 Montenegro,Montenegro,me,mne,499
 ,Montserrat,ms,msr,500
 Morocco,Morocco,ma,mar,504
 Moa,zambique,mz,moz,508
 Myanmar (Burma),Myanmar,mm,mmr,104
-, Namibia,na,nam,516
+Namibia,Namibia,na,nam,516
 , Nauru,nr,nru,520
-, Nepal,np,npl,524
+Nepal, Nepal,np,npl,524
 Netherlands,Netherlands (the),nl,nld,528
 ,New Caledonia,nc,ncl,540
 New Zealand,New Zealand,nz,nzl,554
@@ -162,14 +162,14 @@ Nigeria,Nigeria,ng,nga,566
 ,Niue,nu,niu,570
 ,Norfolk Island,nf,nfk,574
 ,Northern Mariana Islands (the),mp,mnp,580
-,Norway,no,nor,578
+Norway,Norway,no,nor,578
 Oman,Oman,om,omn,512
 Pakistan,Pakistan,pk,pak,586
 ,Palau,pw,plw,585
 Palestine,"Palestine, State of",ps,pse,275
 Panama,Panama,pa,pan,591
-,Papua New Guinea,pg,png,598
-,Paraguay,py,pry,600
+Papua New Guinea,Papua New Guinea,pg,png,598
+Paraguay,Paraguay,py,pry,600
 Peru,Peru,pe,per,604
 Philippines,Philippines (the),ph,phl,608
 ,Pitcairn,pn,pcn,612
@@ -177,73 +177,74 @@ Poland,Poland,pl,pol,616
 Portugal,Portugal,pt,prt,620
 Puerto Rico,Puerto Rico,pr,pri,630
 Qatar,Qatar,qa,qat,634
-,Republic of North Macedonia,mk,mkd,807
+North Macedonia,Republic of North Macedonia,mk,mkd,807
 Romania,Romania,ro,rou,642
 Russia,Russian Federation (the),ru,rus,643
 Rwanda,Rwanda,rw,rwa,646
-,Réunion,re,reu,638
+Réunion,Réunion,re,reu,638
 ,Saint Barthélemy,bl,blm,652
 ,"Saint Helena, Ascension and Tristan da Cunha",sh,shn,654
 ,Saint Kitts and Nevis,kn,kna,659
 St. Lucia,Saint Lucia,lc,lca,662
 ,Saint Martin (French part),mf,maf,663
 ,Saint Pierre and Miquelon,pm,spm,666
-,Saint Vincent and the Grenadines,vc,vct,670
+St. Vincent & Grenadines,Saint Vincent and the Grenadines,vc,vct,670
 ,Samoa,ws,wsm,882
 ,San Marino,sm,smr,674
 ,Sao Tome and Principe,st,stp,678
 Saudi Arabia,Saudi Arabia,sa,sau,682
-,Senegal,sn,sen,686
+Senegal,Senegal,sn,sen,686
 Serbia,Serbia,rs,srb,688
 Seychelles,Seychelles,sc,syc,690
-,Sierra Leone,sl,sle,694
+Sierra Leone,Sierra Leone,sl,sle,694
 Singapore,Singapore,sg,sgp,702
 ,Sint Maarten (Dutch part),sx,sxm,534
 Slovakia,Slovakia,sk,svk,703
-,Slovenia,si,svn,705
+Slovenia,Slovenia,si,svn,705
 ,Solomon Islands,sb,slb,90
 Somalia,Somalia,so,som,706
 South Africa,South Africa,za,zaf,710
 ,South Georgia and the South Sandwich Islands,gs,sgs,239
-,South Sudan,ss,ssd,728
+South Sudan,South Sudan,ss,ssd,728
 Spain,Spain,es,esp,724
-,Sri Lanka,lk,lka,144
-,Sudan (the),sd,sdn,729
-,Suriname,sr,sur,740
+Sri Lanka,Sri Lanka,lk,lka,144
+Sudan,Sudan (the),sd,sdn,729
+Suriname,Suriname,sr,sur,740
 ,Svalbard and Jan Mayen,sj,sjm,744
 Sweden,Sweden,se,swe,752
 Switzerland,Switzerland,ch,che,756
 Syria,Syrian Arab Republic,sy,syr,760
 Taiwan,Taiwan (Province of China),tw,twn,158
 ,Tajikistan,tj,tjk,762
-,"Tanzania, United Republic of",tz,tza,834
+Tanzania,"Tanzania, United Republic of",tz,tza,834
 Thailand,Thailand,th,tha,764
-,Timor-Leste,tl,tls,626
+Timor-Leste,Timor-Leste,tl,tls,626
 Togo,Togo,tg,tgo,768
 ,Tokelau,tk,tkl,772
 ,Tonga,to,ton,776
 Trinidad & Tobago,Trinidad and Tobago,tt,tto,780
-,Tunisia,tn,tun,788
+Tunisia,Tunisia,tn,tun,788
 Türkiye,Turkey,tr,tur,792
 ,Turkmenistan,tm,tkm,795
 ,Turks and Caicos Islands (the),tc,tca,796
 ,Tuvalu,tv,tuv,798
 Uganda,Uganda,ug,uga,800
-,Ukraine,ua,ukr,804
+Ukraine,Ukraine,ua,ukr,804
 United Arab Emirates,United Arab Emirates (the),ae,are,784
 United Kingdom,United Kingdom of Great Britain and Northern Ireland (the),gb,gbr,826
 ,United States Minor Outlying Islands (the),um,umi,581
 United States,United States of America (the),us,usa,840
-,Uruguay,uy,ury,858
+Uruguay,Uruguay,uy,ury,858
 Uzbekistan,Uzbekistan,uz,uzb,860
 ,Vanuatu,vu,vut,548
 Venezuela,Venezuela (Bolivarian Republic of),ve,ven,862
 Vietnam,Viet Nam,vn,vnm,704
-,Virgin Islands (British),vg,vgb,92
+British Virgin Islands,Virgin Islands (British),vg,vgb,92
 U.S. Virgin Islands,Virgin Islands (U.S.),vi,vir,850
 ,Wallis and Futuna,wf,wlf,876
-,Western Sahara,eh,esh,732
+Western Sahara,Western Sahara,eh,esh,732
 Yemen,Yemen,ye,yem,887
-Zambia ,Zambia,zm,zmb,894
-,Zimbabwe,zw,zwe,716
+Zambia,Zambia,zm,zmb,894
+Zimbabwe,Zimbabwe,zw,zwe,716
 ,Åland Islands,ax,ala,248
+Kosovo,Kosovo,XK,XKX,

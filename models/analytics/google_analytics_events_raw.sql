@@ -121,7 +121,7 @@ FROM
 {%- endif -%}
 ) as events
 LEFT JOIN {{ref('ta_iso_country')}} as country_codes
-    ON LOWER(events.geo.country) = LOWER(country_codes.firebase_name)
+    ON LOWER(events.geo.country) = LOWER(COALESCE(country_codes.firebase_name,country_codes.name))
 LEFT JOIN {{ref("ta_iso_language")}} as language_codes
     ON LOWER(SPLIT(events.device.language,'-')[SAFE_OFFSET(0)]) = language_codes.alpha_2
 LEFT JOIN {{ref('ta_iso_country')}} as language_region_codes -- some language have 3 parts (e.g. zh-hans-us), so just get the last one
