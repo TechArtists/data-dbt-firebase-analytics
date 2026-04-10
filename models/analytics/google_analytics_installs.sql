@@ -23,6 +23,13 @@
 {%- set columnsForEventDimensions = tmp_res[0] -%}
 {%- set eventDimensionsUnnestedCount = tmp_res[1]  -%}
 
+{%- set install_types = [
+    "custom_event",
+    "our_first_open",
+    "first_open",
+    "any_first_event"
+] -%}
+
 WITH data as (
     SELECT    DATE(event_ts) as event_date
             , DATE(install_ts) as install_date
@@ -30,8 +37,17 @@ WITH data as (
             , dataset_id
             , install_age
             , {{ ta_firebase.unpack_columns_into_minicolumns(columnsForEventDimensions, miniColumnsToIgnoreInGroupBy, [], "", "") }}
-            , COUNT(1) as cnt
-            , COUNT(DISTINCT(user_pseudo_id)) as users
+            , COUNT(1) AS cnt
+            , COUNT(IF(has_post_install_events_after_10s, 1, NULL)) AS cnt_qualified
+            , COUNT(DISTINCT user_pseudo_id) AS users
+            , COUNT(DISTINCT IF(has_post_install_events_after_10s, user_pseudo_id, NULL)) AS users_qualified
+
+        {% for install_type in install_types %}
+            , COUNT(IF(user_pseudo_id_{{ install_type }}, 1, NULL)) AS cnt_{{ install_type }}
+            , COUNT(IF(user_pseudo_id_{{ install_type }} AND has_post_install_events_after_10s, 1, NULL)) AS cnt_{{ install_type }}_qualified
+            , COUNT(DISTINCT IF(user_pseudo_id_{{ install_type }}, user_pseudo_id, NULL)) AS users_{{ install_type }}
+            , COUNT(DISTINCT IF(user_pseudo_id_{{ install_type }} AND has_post_install_events_after_10s, user_pseudo_id, NULL)) AS users_{{ install_type }}_qualified
+        {% endfor %}
 
     FROM {{ ref("google_analytics_installs_raw") }}
     WHERE {{ ta_firebase.analyticsDateFilterFor('event_date') }}
@@ -44,5 +60,13 @@ SELECT  event_date
       , install_age
       , {{ ta_firebase.pack_minicolumns_into_structs_for_select(columnsForEventDimensions, miniColumnsToIgnoreInGroupBy, "", "") }}
       , cnt
+      , cnt_qualified
       , users
+      , users_qualified
+{% for install_type in install_types %}
+      , cnt_{{ install_type }}
+      , cnt_{{ install_type }}_qualified
+      , users_{{ install_type }}
+      , users_{{ install_type }}_qualified
+{% endfor %}
 FROM data
