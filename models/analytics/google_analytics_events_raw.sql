@@ -106,7 +106,7 @@ FROM
 
   {%- for ds in ads_list -%}
     {%- if pid and ds -%}
-      {% if not ns.first %}UNION ALL{% endif %}
+      {% if not ns.first %}INNER UNION ALL BY NAME{% endif %}
       {% set ns.first = false %}
       SELECT
         '{{ pid }}' as project_id,
